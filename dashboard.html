@@ -123,6 +123,41 @@
     color:var(--sell); font-family:'Inter',sans-serif; font-size:12px; display:block; margin-bottom:6px;
   }
 
+  .result-banner{ max-width:1180px; margin:16px auto 0; padding:0 24px; }
+  .result-banner .box{
+    padding:12px 16px; border-radius:8px; font-size:13.5px; line-height:1.5; white-space:pre-line;
+  }
+  .result-banner .box.ok{ background:var(--buy-dim); border:1px solid var(--buy); color:var(--buy); }
+  .result-banner .box.err{ background:var(--sell-dim); border:1px solid var(--sell); color:var(--sell); }
+  .result-banner .close{ float:right; cursor:pointer; opacity:.7; font-family:'JetBrains Mono',monospace; }
+  .result-banner .close:hover{ opacity:1; }
+
+  .imports-history{ max-width:1180px; margin:0 auto; padding:0 24px 34px; }
+  .imports-history-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .imports-history-head h2{ font-family:'Space Grotesk',sans-serif; font-size:18px; margin:0; }
+  .imports-history-note{ font-size:12px; color:var(--text-muted); }
+  .imports-list{ display:flex; flex-direction:column; gap:10px; }
+  .import-item{
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+  }
+  .import-item .date{ font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; min-width:110px; }
+  .import-item .src{
+    font-family:'JetBrains Mono',monospace; font-size:11px; padding:3px 8px;
+    border-radius:4px; letter-spacing:.05em;
+  }
+  .import-item .src.dse{ background:var(--hold-dim); color:var(--hold); }
+  .import-item .src.alpha{ background:var(--buy-dim); color:var(--buy); }
+  .import-item .src.text{ background:var(--watch-dim); color:var(--watch); }
+  .import-item .meta{ font-size:12px; color:var(--text-muted); }
+  .import-item .counters{ flex:1; min-width:180px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); }
+  .import-item .counters b{ color:var(--text); }
+  .import-item .remove{
+    background:transparent; border:1px solid var(--line); color:var(--text-muted);
+    border-radius:6px; padding:5px 10px; font-size:11px; font-family:'JetBrains Mono',monospace; cursor:pointer;
+  }
+  .import-item .remove:hover{ border-color:var(--sell); color:var(--sell); }
+
   main{ max-width:1180px; margin:0 auto; padding:26px 24px 70px; }
   .grid{
     display:grid; grid-template-columns:repeat(auto-fill, minmax(268px, 1fr));
@@ -209,9 +244,19 @@
   </div>
 </div>
 
+<div class="result-banner" id="resultBanner" hidden></div>
+
 <main>
   <div class="grid" id="cardGrid"></div>
 </main>
+
+<section class="imports-history" id="importsHistory" hidden>
+  <div class="imports-history-head">
+    <h2>Past imports</h2>
+    <span class="imports-history-note">Saved in this browser only — push reports to <b>reports/</b> to publish them for everyone.</span>
+  </div>
+  <div class="imports-list" id="importsList"></div>
+</section>
 
 <footer>
   <b>How to read this board:</b> each call (BUY / HOLD / WATCH / SELL) is generated from price trend, recent momentum, how often the counter actually trades, and whether outstanding orders lean toward buyers or sellers — never from a single number. Most DSE counters trade thinly, so a lot of counters honestly land on WATCH until more daily reports have been ingested. This board reflects <b id="footerDate">—</b>'s report only; run the ingest pipeline daily to build real trend history.
@@ -515,7 +560,16 @@ function analyzeCounter(symbol, history, fundamentals){
 
 // ---- browser-local imported reports (persist in localStorage) ----
 function getImported(){
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY)) || {};
+    const out = {};
+    for (const d of Object.keys(raw)){
+      const v = raw[d];
+      // normalize older shape {date: [rows]} -> {date: {source, importedAt, rows}}
+      out[d] = Array.isArray(v) ? {source: "text", importedAt: null, rows: v} : v;
+    }
+    return out;
+  } catch(e) { return {}; }
 }
 function saveImported(obj){
   try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e) {}
@@ -523,7 +577,7 @@ function saveImported(obj){
 function importedSymbols(imported){
   const out = new Set();
   for (const dateISO of Object.keys(imported)){
-    for (const r of imported[dateISO]) out.add(r.symbol);
+    for (const r of imported[dateISO].rows) out.add(r.symbol);
   }
   return out;
 }
@@ -531,7 +585,7 @@ function mergedHistory(symbol, imported){
   const map = {};
   for (const r of (serverHistory[symbol] || [])) map[r.date] = r;
   for (const dateISO of Object.keys(imported)){
-    for (const r of imported[dateISO]){
+    for (const r of imported[dateISO].rows){
       if (r.symbol === symbol) map[dateISO] = r;  // imported wins on a same-date clash
     }
   }
@@ -627,30 +681,82 @@ function describeFailure(text, kind){
   return "No counters parsed \u2014 " + lines.length + " lines of text were read but none matched the expected row format:\nSYMBOL open close high low turnover deals volume market_cap bids offers\n(e.g.  CRDB 710 720 730 710 1,042,638,710 303 1,483,268 1,880.52 614,913 273,618)\nIf this is DSE's own report, the PDF/OCR layout likely scrambled the columns \u2014 inspect the preview and fix, or copy-paste the report text instead.";
 }
 
-function handleImport(rows, reportDate, manualDate, rawText, kind){
-  const status = document.getElementById('importStatus');
+function showBanner(message, cls){
+  const b = document.getElementById('resultBanner');
+  b.hidden = false;
+  b.innerHTML = '<div class="box ' + cls + '">' + escapeHtml(message) + ' <span class="close">\u00d7</span></div>';
+  b.querySelector('.close').addEventListener('click', () => b.hidden = true);
+}
+
+function renderHistory(){
+  const sec = document.getElementById('importsHistory');
+  const list = document.getElementById('importsList');
+  const imported = getImported();
+  const dates = Object.keys(imported).sort().reverse();
+  if (dates.length === 0){ sec.hidden = true; list.innerHTML = ""; return; }
+  sec.hidden = false;
+  list.innerHTML = "";
+  for (const d of dates){
+    const entry = imported[d];
+    const rows = entry.rows || [];
+    const src = entry.source || "text";
+    const when = entry.importedAt ? " \u00b7 " + new Date(entry.importedAt).toLocaleString() : "";
+    const shown = rows.slice(0, 6).map(r => "<b>" + escapeHtml(r.symbol) + "</b> " + (r.close != null ? fmtTZS(r.close) : "\u2014")).join(", ");
+    const more = rows.length > 6 ? " +" + (rows.length - 6) + " more" : "";
+    const div = document.createElement('div');
+    div.className = "import-item";
+    div.innerHTML =
+      '<div class="date">' + d + '</div>' +
+      '<div class="src ' + src + '">' + src.toUpperCase() + '</div>' +
+      '<div class="meta">' + rows.length + ' counter(s)' + when + '</div>' +
+      '<div class="counters">' + shown + more + '</div>' +
+      '<button class="remove" data-date="' + d + '">Remove</button>';
+    list.appendChild(div);
+  }
+  list.querySelectorAll('.remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const imported = getImported();
+      delete imported[btn.dataset.date];
+      saveImported(imported);
+      buildDashboard();
+      updateImportUI();
+      renderHistory();
+    });
+  });
+}
+
+function handleImport(rows, reportDate, manualDate, rawText, fileKind, src){
   const pre = document.getElementById('importPreview');
   if (!rows.length){
-    status.textContent = describeFailure(rawText, kind);
-    status.className = "import-status err";
-    showPreview(rawText, kind);
+    showBanner(describeFailure(rawText, fileKind), "err");
+    showPreview(rawText, fileKind);
     return;
   }
   pre.hidden = true;
   const date = manualDate || reportDate;
   if (!date){
-    status.textContent = "Could not detect a report date \u2014 set the date field above, or make sure the text has a DATE: DD-Month-YYYY line.";
-    status.className = "import-status err";
+    showBanner("Could not detect a report date \u2014 set the date field above, or make sure the text has a DATE: DD-Month-YYYY line.", "err");
     return;
   }
   const imported = getImported();
   rows.forEach(r => r.date = date);
-  imported[date] = rows;
+  imported[date] = {source: src || "text", importedAt: new Date().toISOString(), rows: rows};
   saveImported(imported);
-  status.textContent = "Added " + rows.length + " counters for " + date + ". Board updated.";
-  status.className = "import-status ok";
+
+  let msg = "Report for " + date + " imported \u2014 " + rows.length + " counters analyzed and the board updated. Saved under Past imports below.";
+  if (src === "alpha") msg += " Only the top movers are listed in Alpha Capital's format \u2014 other counters keep their previous data.";
+  showBanner(msg, "ok");
+
+  // Clear the upload area for the next report.
+  document.getElementById('reportText').value = "";
+  document.getElementById('reportDateInput').value = "";
+  document.getElementById('importPanel').hidden = true;
+  document.getElementById('importStatus').textContent = "";
+  document.getElementById('importStatus').className = "import-status";
+
   buildDashboard();
   updateImportUI();
+  renderHistory();
 }
 
 function loadScript(src){
@@ -772,11 +878,7 @@ document.getElementById('importBtn').addEventListener('click', () => {
 document.getElementById('parseBtn').addEventListener('click', () => {
   const text = document.getElementById('reportText').value;
   const {rows, reportDate, source} = parseSmart(text);
-  handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, source);
-  if (rows.length > 0 && source === "alpha"){
-    const status = document.getElementById('importStatus');
-    status.textContent += " Only the top movers are listed in Alpha Capital's format \u2014 other counters keep their previous data.";
-  }
+  handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, "text", source);
 });
 document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
 document.getElementById('copyTextBtn').addEventListener('click', async () => {
@@ -817,13 +919,9 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
     }
     document.getElementById('reportText').value = text;
     const {rows, reportDate, source} = parseSmart(text);
-    handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, kind);
-    if (rows.length > 0 && source === "alpha"){
-      status.textContent += " Only the top movers are listed in Alpha Capital's format \u2014 other counters keep their previous data.";
-    } else if (rows.length > 0 && rows.length < 28){
-      status.textContent += " Extracted text is in the box above \u2014 parsed fewer than the usual 28 counters, so check/fix it and re-parse.";
-    } else if (rows.length > 0){
-      status.textContent += " Extracted text is in the box above if you want to inspect it.";
+    handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, kind, source);
+    if (rows.length > 0 && rows.length < 28){
+      showBanner("Extracted text is in the box above \u2014 parsed fewer than the usual 28 counters, so check/fix it and re-parse.", "ok");
     }
   } catch(err){
     status.textContent = "Import failed: " + err.message;
@@ -838,8 +936,10 @@ document.getElementById('clearImports').addEventListener('click', () => {
   document.getElementById('importStatus').textContent = "";
   document.getElementById('importStatus').className = "import-status";
   document.getElementById('importPreview').hidden = true;
+  document.getElementById('resultBanner').hidden = true;
   buildDashboard();
   updateImportUI();
+  renderHistory();
 });
 
 // ---- load ----
@@ -858,6 +958,8 @@ async function loadData(){
   serverHistory = (json && json.history) || {};
   serverFundamentals = (json && json.fundamentals) || {};
   buildDashboard();
+  updateImportUI();
+  renderHistory();
 }
 loadData();
 </script>
