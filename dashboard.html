@@ -802,12 +802,35 @@ async function extractPdfText(file){
   return out;
 }
 
-async function ocrImage(file){
+async function ocrImage(input){
   if (!window.Tesseract){
     await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
   }
-  const { data } = await window.Tesseract.recognize(file, "eng");
+  const { data } = await window.Tesseract.recognize(input, "eng");
   return data.text;
+}
+
+async function ocrPdf(file){
+  if (!window.pdfjsLib){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS_VERSION + "/pdf.min.js");
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS_VERSION + "/pdf.worker.min.js";
+  }
+  if (!window.Tesseract){
+    await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
+  }
+  const pdf = await window.pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+  let out = "";
+  for (let p = 1; p <= pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const viewport = page.getViewport({scale: 2});
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
+    const { data } = await window.Tesseract.recognize(canvas, "eng");
+    out += data.text + "\n";
+  }
+  return out;
 }
 
 function classifyFile(name){
@@ -914,7 +937,11 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
       status.textContent = "Extracting text from PDF\u2026";
       status.className = "import-status";
       text = await extractPdfText(file);
-      if (!text.trim()) throw new Error("This PDF has no selectable text (likely a scanned image). Try a clear image upload (OCR) or the copy-paste .txt route.");
+      if (!text.trim()){
+        status.textContent = "No selectable text found \u2014 running OCR on the PDF pages\u2026";
+        status.className = "import-status";
+        text = await ocrPdf(file);
+      }
     } else if (kind === "image"){
       status.textContent = "Running OCR on image\u2026 (first time downloads ~10MB, then 10\u201330s per image)";
       status.className = "import-status";
