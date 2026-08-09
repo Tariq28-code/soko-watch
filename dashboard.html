@@ -199,6 +199,7 @@
     <button class="filter-btn" id="fileBtn">Choose file…</button>
     <input type="file" id="fileInput" accept=".txt,.text,.pdf,image/*" hidden>
     <label class="import-date"><input type="date" id="reportDateInput"><span>report date (if not auto-detected)</span></label>
+    <button class="filter-btn" id="copyTextBtn">Copy extracted text</button>
     <span class="import-status" id="importStatus"></span>
   </div>
   <div class="import-preview" id="importPreview" hidden></div>
@@ -578,12 +579,34 @@ function escapeHtml(s){
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-function showPreview(text){
+function isAlphaLike(text){
+  const upper = text.toUpperCase();
+  return upper.includes("ALPHA") || upper.includes("DAILY MARKET REPORT") || upper.includes("MOVERS");
+}
+
+function moversLines(text){
+  const at = text.indexOf("MOVERS");
+  if (at === -1) return null;
+  const endMarker = text.indexOf("MARKET INDICES", at);
+  const section = endMarker === -1 ? text.slice(at) : text.slice(at, endMarker);
+  return section.split(/\r?\n/).map(l => l.trim()).filter(l => l.length);
+}
+
+function showPreview(text, kind){
   const pre = document.getElementById('importPreview');
   if (!text || !text.trim()){ pre.hidden = true; return; }
-  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length);
-  pre.innerHTML = "<b>Extracted text preview (first 12 of " + lines.length + " lines)</b>" +
-    escapeHtml(lines.slice(0, 12).join("\n"));
+  const alpha = isAlphaLike(text);
+  const movers = alpha ? moversLines(text) : null;
+  let lines, heading;
+  if (movers && movers.length){
+    lines = movers.slice(0, 16);
+    heading = "Lines near the MOVERS section (which did not parse):";
+  } else {
+    lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length);
+    heading = "Extracted text preview (first 12 of " + lines.length + " lines)";
+    lines = lines.slice(0, 12);
+  }
+  pre.innerHTML = "<b>" + heading + "</b>" + escapeHtml(lines.join("\n"));
   pre.hidden = false;
 }
 
@@ -591,7 +614,11 @@ function describeFailure(text, kind){
   const lines = text ? text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length) : [];
   const upper = (text || "").toUpperCase();
   if (upper.includes("ALPHA CAPITAL") || upper.includes("DAILY MARKET REPORT")){
-    return "No counters parsed \u2014 this looks like a broker's market summary (e.g. Alpha Capital), not DSE's own \u201cEQUITY DAILY PRICES\u201d report. It doesn't include each counter's Open/Close/High/Low/Deals/Outstanding Bids/Offers, so Soko Watch can't analyze it. Use DSE's official daily report instead (the text from dse.co.tz's market report page, or its \u201cDownload Daily Report\u201d file).";
+    const movers = moversLines(text);
+    return "No counters parsed \u2014 this looks like Alpha Capital's summary, but the MOVERS rows weren't recognized (" +
+      (movers ? movers.length : 0) + " line(s) found in the MOVERS section, none matching TICKER price volume turnover). " +
+      "The preview shows those lines so you can see the exact layout \u2014 or click \u201cCopy extracted text\u201d and share it. " +
+      "If this is actually DSE's own report, use its \u201cEQUITY DAILY PRICES\u201d text instead.";
   }
   if (!lines.length){
     return "No counters parsed \u2014 no readable text was extracted" +
@@ -606,7 +633,7 @@ function handleImport(rows, reportDate, manualDate, rawText, kind){
   if (!rows.length){
     status.textContent = describeFailure(rawText, kind);
     status.className = "import-status err";
-    showPreview(rawText);
+    showPreview(rawText, kind);
     return;
   }
   pre.hidden = true;
@@ -752,6 +779,23 @@ document.getElementById('parseBtn').addEventListener('click', () => {
   }
 });
 document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+document.getElementById('copyTextBtn').addEventListener('click', async () => {
+  const status = document.getElementById('importStatus');
+  const text = document.getElementById('reportText').value;
+  if (!text.trim()){
+    status.textContent = "Nothing to copy yet \u2014 import or paste a report first.";
+    status.className = "import-status err";
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    status.textContent = "Extracted text copied to clipboard \u2014 paste it anywhere.";
+    status.className = "import-status ok";
+  } catch(e){
+    status.textContent = "Could not copy automatically \u2014 select the text in the box and press Ctrl+C.";
+    status.className = "import-status err";
+  }
+});
 document.getElementById('fileInput').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
