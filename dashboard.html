@@ -83,6 +83,28 @@
   }
   .filter-btn:hover{ border-color:var(--hold); color:var(--text); }
   .filter-btn.active{ background:var(--surface-hi); color:var(--text); border-color:var(--hold); }
+  .import-btn{ border-color:var(--buy); color:var(--buy); }
+  .import-btn:hover{ background:var(--buy-dim); border-color:var(--buy); color:var(--buy); }
+
+  .import-panel{
+    max-width:1180px; margin:18px auto 0; padding:0 24px;
+  }
+  .import-panel textarea{
+    width:100%; background:var(--surface); border:1px solid var(--line); color:var(--text);
+    border-radius:10px; padding:12px 14px; font-family:'JetBrains Mono',monospace;
+    font-size:13px; resize:vertical; min-height:130px;
+  }
+  .import-panel textarea::placeholder{ color:var(--text-muted); }
+  .import-actions{ display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap; }
+  .import-status{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted); }
+  .import-status.ok{ color:var(--buy); }
+  .import-status.err{ color:var(--sell); }
+  .import-note{
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
+    font-size:12.5px; color:var(--text-muted); display:flex; gap:12px;
+    align-items:center; flex-wrap:wrap;
+  }
+  .import-note b{ color:var(--text); }
 
   main{ max-width:1180px; margin:0 auto; padding:26px 24px 70px; }
   .grid{
@@ -150,6 +172,21 @@
   <button class="filter-btn" data-filter="HOLD">HOLD</button>
   <button class="filter-btn" data-filter="WATCH">WATCH</button>
   <button class="filter-btn" data-filter="SELL">SELL</button>
+  <button class="filter-btn import-btn" id="importBtn">+ Import report</button>
+</div>
+
+<div class="import-panel" id="importPanel" hidden>
+  <textarea id="reportText" placeholder="Paste today's DSE Market Report text here (copy from dse.co.tz or its daily report PDF), then press Parse.&#10;&#10;The board re-analyzes right in your browser — nothing leaves this page."></textarea>
+  <div class="import-actions">
+    <button class="filter-btn" id="parseBtn">Parse &amp; add to board</button>
+    <button class="filter-btn" id="fileBtn">Choose file…</button>
+    <input type="file" id="fileInput" accept=".txt,.text,text/plain" hidden>
+    <span class="import-status" id="importStatus"></span>
+  </div>
+  <div class="import-note" id="importNote" hidden>
+    <span>Imported locally: <b id="importCount"></b> report(s) — saved in this browser. To publish for everyone, save the same text to <b>reports/&lt;date&gt;.txt</b> and git push.</span>
+    <button class="filter-btn" id="clearImports">Clear imports</button>
+  </div>
 </div>
 
 <main>
@@ -166,13 +203,319 @@ const EMBEDDED_DATA = {"generated_from_latest_report": "2025-02-18", "counters":
 let activeFilter = "ALL";
 let searchTerm = "";
 
+let counters = [];
+let latestReportDate = "\u2014";
+let serverCounters = [];
+let serverLatestDate = null;
+let serverHistory = {};
+let serverFundamentals = {};
+
+const LS_KEY = "soko_watch_imports";
+const MIN_POINTS_FOR_TREND = 5;
+
 function fmtTZS(n){
   return "TZS " + n.toLocaleString(undefined, {maximumFractionDigits:0});
 }
+function fmt0(n){
+  return n.toLocaleString(undefined, {maximumFractionDigits:0});
+}
 
+// ---- parser.py port: DSE daily report text -> rows ----
+const ROW_RE = /^([A-Z]{2,10})(\*\*)?\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+(\d+)\s+([\d,]+)\s+([\d,.]+)\s+([\d,]+)\s+([\d,]+)\s*$/;
+const DATE_RE = /DATE:\s*(\d{1,2}[-\s][A-Za-z]+[-\s]\d{4})/;
+const MONTHS = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+
+function toNum(s){ return parseFloat(s.replace(/,/g, "")); }
+
+function parseReport(rawText){
+  let reportDate = null;
+  const dm = rawText.match(DATE_RE);
+  if (dm){
+    const parts = dm[1].replace(/-/g, " ").split(/\s+/);
+    const day = parseInt(parts[0], 10);
+    const year = parseInt(parts[2], 10);
+    const month = MONTHS[parts[1].toLowerCase()];
+    if (month && day && year){
+      reportDate = year + "-" + String(month).padStart(2,"0") + "-" + String(day).padStart(2,"0");
+    }
+  }
+  const rows = [];
+  const seen = {};
+  for (const raw of rawText.split(/\r?\n/)){
+    const line = raw.trim();
+    if (!line || line.toLowerCase().startsWith("total")) continue;
+    const m = line.match(ROW_RE);
+    if (!m) continue;
+    const symbol = m[1];
+    if (seen[symbol]) continue;
+    seen[symbol] = 1;
+    rows.push({
+      symbol: symbol,
+      suspended: !!m[2],
+      open: toNum(m[3]),
+      close: toNum(m[4]),
+      high: toNum(m[5]),
+      low: toNum(m[6]),
+      turnover_tzs: toNum(m[7]),
+      deals: parseInt(m[8], 10),
+      volume: toNum(m[9]),
+      market_cap_bln_tzs: toNum(m[10]),
+      bids: toNum(m[11]),
+      offers: toNum(m[12]),
+    });
+  }
+  return {rows, reportDate};
+}
+
+// ---- analysis.py port: history + fundamentals -> signals ----
+function sma(values, n){
+  if (values.length < n) return null;
+  return values.slice(-n).reduce((a,b) => a+b, 0) / n;
+}
+
+function fundamentalsFacts(fundamentals){
+  if (!fundamentals){
+    return {facts: ["No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."], score: 0};
+  }
+  const facts = [];
+  let score = 0;
+  const period = fundamentals.period_end || "unknown period";
+  const revenue = fundamentals.revenue_mln_tzs;
+  const netIncome = fundamentals.net_income_mln_tzs;
+  const debt = fundamentals.total_debt_mln_tzs;
+  const equity = fundamentals.total_equity_mln_tzs;
+  const assets = fundamentals.total_assets_mln_tzs;
+
+  if (revenue && netIncome != null){
+    const margin = netIncome / revenue * 100;
+    if (margin < 0){
+      facts.push("Reported a net loss for " + period + " (net margin " + margin.toFixed(1) + "%).");
+      score -= 1;
+    } else if (margin < 5){
+      facts.push("Thin net margin for " + period + " (" + margin.toFixed(1) + "%) \u2014 profitable, but not by much.");
+    } else {
+      facts.push("Net margin of " + margin.toFixed(1) + "% for " + period + ".");
+      score += 0.5;
+    }
+  }
+
+  if (debt != null && equity){
+    const dToE = debt / equity;
+    if (dToE > 2){
+      facts.push("Highly leveraged \u2014 debt is " + dToE.toFixed(1) + "x equity as of " + period + ". Debt-funded growth carries more downside if earnings soften.");
+      score -= 1;
+    } else if (dToE > 1){
+      facts.push("Moderately leveraged \u2014 debt is " + dToE.toFixed(1) + "x equity as of " + period + ".");
+    } else if (dToE >= 0){
+      facts.push("Low leverage \u2014 debt is only " + dToE.toFixed(1) + "x equity as of " + period + ".");
+      score += 0.5;
+    }
+  }
+
+  if (debt != null && assets){
+    facts.push("Debt makes up " + Math.round(debt / assets * 100) + "% of total assets as of " + period + ".");
+  }
+
+  if (fundamentals.dividend_per_share_tzs){
+    facts.push("Last declared dividend: TZS " + Math.round(fundamentals.dividend_per_share_tzs).toLocaleString(undefined, {maximumFractionDigits:0}) + " per share.");
+  }
+
+  if (!facts.length){
+    facts.push("Fundamentals on file for " + period + ", but key figures (revenue, net income, debt, or equity) are still blank \u2014 fill in load_fundamentals.py's CSV to unlock this.");
+  }
+  return {facts, score};
+}
+
+function analyzeCounter(symbol, history, fundamentals){
+  if (!history || !history.length){
+    return {symbol: symbol, call: "NO DATA", facts: [], confidence: "none"};
+  }
+  const latest = history[history.length - 1];
+  const traded = history.filter(h => h.volume && h.volume > 0);
+  const closes = traded.map(h => h.close);
+
+  const facts = [];
+  let score = 0;
+
+  if (latest.suspended){
+    return {
+      symbol: symbol, call: "SUSPENDED", confidence: "n/a",
+      last_close: latest.close,
+      facts: ["Trading in this counter is currently suspended."],
+    };
+  }
+
+  const smaShort = sma(closes, 3);
+  const smaLong = closes.length >= MIN_POINTS_FOR_TREND ? sma(closes, Math.min(10, closes.length)) : null;
+  if (smaShort && smaLong){
+    if (smaShort > smaLong * 1.01){
+      score += 1;
+      facts.push("Short-term price trend is rising (" + fmt0(smaShort) + " vs " + fmt0(smaLong) + " longer average).");
+    } else if (smaShort < smaLong * 0.99){
+      score -= 1;
+      facts.push("Short-term price trend is falling (" + fmt0(smaShort) + " vs " + fmt0(smaLong) + " longer average).");
+    } else {
+      facts.push("Price has been flat relative to its recent average.");
+    }
+  } else {
+    facts.push("Not enough trading history yet for a reliable trend read.");
+  }
+
+  if (closes.length >= 2){
+    const lookback = closes[closes.length - Math.min(5, closes.length)];
+    const latestClose = closes[closes.length - 1];
+    const pct = lookback ? (latestClose - lookback) / lookback * 100 : 0;
+    const n = Math.min(5, closes.length);
+    if (pct > 3){
+      score += 1;
+      facts.push("Up " + pct.toFixed(1) + "% over its last " + n + " traded sessions.");
+    } else if (pct < -3){
+      score -= 1;
+      facts.push("Down " + Math.abs(pct).toFixed(1) + "% over its last " + n + " traded sessions.");
+    } else {
+      facts.push("Roughly flat (" + (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%) over its last " + n + " traded sessions.");
+    }
+  }
+
+  const recent = history.slice(-10);
+  const tradeDays = recent.filter(h => h.volume && h.volume > 0).length;
+  const liquidityRatio = tradeDays / recent.length;
+  if (liquidityRatio < 0.3){
+    facts.push("Thinly traded \u2014 only active on " + tradeDays + "/" + recent.length + " of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.");
+    score -= 0.5;
+  } else {
+    facts.push("Reasonably liquid \u2014 traded on " + tradeDays + "/" + recent.length + " of the last recorded sessions.");
+  }
+
+  const bids = latest.bids || 0;
+  const offers = latest.offers || 0;
+  if (bids + offers > 0){
+    const bidShare = bids / (bids + offers);
+    if (bidShare > 0.65){
+      score += 0.5;
+      facts.push("Order book is buyer-heavy \u2014 " + Math.round(bidShare * 100) + "% of outstanding orders are bids (demand outweighs supply).");
+    } else if (bidShare < 0.35){
+      score -= 0.5;
+      facts.push("Order book is seller-heavy \u2014 " + Math.round((1 - bidShare) * 100) + "% of outstanding orders are offers (supply outweighs demand).");
+    }
+  }
+
+  const fund = fundamentalsFacts(fundamentals);
+  facts.push(...fund.facts);
+  score += fund.score;
+
+  const nPoints = traded.length;
+  let call, confidence;
+  if (nPoints < MIN_POINTS_FOR_TREND){
+    call = "WATCH";
+    confidence = "low (limited history)";
+  } else if (score >= 1.5){
+    call = "BUY";
+    confidence = "moderate";
+  } else if (score <= -1.5){
+    call = "SELL";
+    confidence = "moderate";
+  } else {
+    call = "HOLD";
+    confidence = "moderate";
+  }
+
+  return {
+    symbol: symbol, call: call, confidence: confidence,
+    score: Math.round(score * 100) / 100,
+    last_close: latest.close, last_date: latest.date,
+    facts: facts,
+  };
+}
+
+// ---- browser-local imported reports (persist in localStorage) ----
+function getImported(){
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveImported(obj){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e) {}
+}
+function importedSymbols(imported){
+  const out = new Set();
+  for (const dateISO of Object.keys(imported)){
+    for (const r of imported[dateISO]) out.add(r.symbol);
+  }
+  return out;
+}
+function mergedHistory(symbol, imported){
+  const map = {};
+  for (const r of (serverHistory[symbol] || [])) map[r.date] = r;
+  for (const dateISO of Object.keys(imported)){
+    for (const r of imported[dateISO]){
+      if (r.symbol === symbol) map[dateISO] = r;  // imported wins on a same-date clash
+    }
+  }
+  return Object.values(map).sort((a,b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+}
+function computeAll(imported){
+  const symbols = new Set(Object.keys(serverHistory));
+  importedSymbols(imported).forEach(s => symbols.add(s));
+  return [...symbols].sort().map(s => analyzeCounter(s, mergedHistory(s, imported), serverFundamentals[s] || null));
+}
+function maxReportDate(imported){
+  let max = serverLatestDate || null;
+  for (const d of Object.keys(imported)) if (!max || d > max) max = d;
+  return max || "\u2014";
+}
+
+function buildDashboard(){
+  const imported = getImported();
+  const hasImports = Object.keys(imported).length > 0;
+  if (hasImports){
+    counters = computeAll(imported);
+    latestReportDate = maxReportDate(imported);
+  } else {
+    counters = serverCounters;
+    latestReportDate = serverLatestDate || "\u2014";
+  }
+  renderTicker();
+  renderMeta();
+  renderGrid();
+}
+
+function updateImportUI(){
+  const imported = getImported();
+  const note = document.getElementById('importNote');
+  const n = Object.keys(imported).length;
+  if (n > 0){
+    document.getElementById('importCount').textContent = n;
+    note.hidden = false;
+  } else {
+    note.hidden = true;
+  }
+}
+
+function handleImport(rows, reportDate){
+  const status = document.getElementById('importStatus');
+  if (!rows.length){
+    status.textContent = "No counters parsed \u2014 check the report format.";
+    status.className = "import-status err";
+    return;
+  }
+  if (!reportDate){
+    status.textContent = "Could not detect a report date \u2014 the text needs a DATE: DD-Month-YYYY line.";
+    status.className = "import-status err";
+    return;
+  }
+  const imported = getImported();
+  rows.forEach(r => r.date = reportDate);
+  imported[reportDate] = rows;
+  saveImported(imported);
+  status.textContent = "Added " + rows.length + " counters for " + reportDate + ". Board updated.";
+  status.className = "import-status ok";
+  buildDashboard();
+  updateImportUI();
+}
+
+// ---- rendering ----
 function renderTicker(){
   const track = document.getElementById('tickerTrack');
-  const items = DATA.counters.map(c => {
+  const items = counters.map(c => {
     const cls = c.score > 0 ? 't-up' : c.score < 0 ? 't-down' : 't-flat';
     const arrow = c.score > 0 ? '▲' : c.score < 0 ? '▼' : '•';
     return `<span><b>${c.symbol}</b> ${fmtTZS(c.last_close)} <span class="${cls}">${arrow}</span></span>`;
@@ -181,14 +524,13 @@ function renderTicker(){
 }
 
 function renderMeta(){
-  const d = DATA.generated_from_latest_report || "\u2014";
-  document.getElementById('reportDatePill').textContent = "Latest report: " + d;
-  document.getElementById('footerDate').textContent = d;
+  document.getElementById('reportDatePill').textContent = "Latest report: " + latestReportDate;
+  document.getElementById('footerDate').textContent = latestReportDate;
 }
 
 function renderGrid(){
   const grid = document.getElementById('cardGrid');
-  const filtered = DATA.counters.filter(c => {
+  const filtered = counters.filter(c => {
     const matchesFilter = activeFilter === "ALL" || c.call === activeFilter;
     const matchesSearch = c.symbol.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -212,9 +554,10 @@ function renderGrid(){
   `).join('');
 }
 
-document.querySelectorAll('.filter-btn').forEach(btn => {
+// ---- controls ----
+document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeFilter = btn.dataset.filter;
     renderGrid();
@@ -226,19 +569,53 @@ document.getElementById('searchBox').addEventListener('input', (e) => {
   renderGrid();
 });
 
-let DATA;
+document.getElementById('importBtn').addEventListener('click', () => {
+  const panel = document.getElementById('importPanel');
+  panel.hidden = !panel.hidden;
+  if (!panel.hidden) updateImportUI();
+});
+document.getElementById('parseBtn').addEventListener('click', () => {
+  const text = document.getElementById('reportText').value;
+  const {rows, reportDate} = parseReport(text);
+  handleImport(rows, reportDate);
+});
+document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const {rows, reportDate} = parseReport(reader.result);
+    handleImport(rows, reportDate);
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+document.getElementById('clearImports').addEventListener('click', () => {
+  localStorage.removeItem(LS_KEY);
+  document.getElementById('reportText').value = "";
+  document.getElementById('importStatus').textContent = "";
+  document.getElementById('importStatus').className = "import-status";
+  buildDashboard();
+  updateImportUI();
+});
+
+// ---- load ----
 async function loadData(){
+  let json;
   try {
     const res = await fetch('dashboard_data.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    DATA = await res.json();
+    json = await res.json();
   } catch(e) {
     // Fallback: works even when opened directly off a bare file:// path.
-    DATA = EMBEDDED_DATA;
+    json = EMBEDDED_DATA;
   }
-  renderTicker();
-  renderMeta();
-  renderGrid();
+  serverCounters = (json && json.counters) || [];
+  serverLatestDate = (json && json.generated_from_latest_report) || null;
+  serverHistory = (json && json.history) || {};
+  serverFundamentals = (json && json.fundamentals) || {};
+  buildDashboard();
 }
 loadData();
 </script>

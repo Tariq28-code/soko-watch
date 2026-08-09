@@ -64,6 +64,19 @@ off a bare `file://` path). So it works two ways with no edits:
 Re-run `export_dashboard.py` after each day's ingest to refresh the
 JSON the server serves.
 
+### Importing a report right in the browser
+
+The board has a **"+ Import report"** button: paste the day's report
+text (or choose the `.txt` file) and it parses and re-analyzes the
+whole board in your browser, blending the new day into the history
+shipped in `dashboard_data.json`. Imports are saved to the browser's
+`localStorage`, so they persist across refreshes on that device.
+
+This is a quick local preview only — nothing leaves the page, and the
+public site won't change. To publish an imported report for everyone,
+still save the text to `reports/YYYY-MM-DD.txt` and push; the
+server-side pipeline then produces the authoritative data.
+
 ## Deployment (GitHub Pages — set up)
 
 The repo ships with `.github/workflows/deploy.yml`. It rebuilds the

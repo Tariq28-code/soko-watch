@@ -15,9 +15,15 @@ def export(db_path="dse.db", out_path="dashboard_data.json"):
         lambda s: get_history(s, db_path),
         lambda s: get_latest_fundamentals(s, db_path),
     )
+    # Raw inputs are shipped too so the frontend can re-run the same
+    # analysis in-browser when you paste/import a report that isn't in
+    # the database yet. `counters` stays the pre-computed server view;
+    # `history` + `fundamentals` let the page blend new reports into it.
     payload = {
         "generated_from_latest_report": get_latest_date(db_path),
         "counters": results,
+        "history": {s: get_history(s, db_path) for s in symbols},
+        "fundamentals": {s: get_latest_fundamentals(s, db_path) for s in symbols},
     }
     with open(out_path, "w") as f:
         json.dump(payload, f, indent=2)
