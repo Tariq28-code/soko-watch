@@ -105,6 +105,15 @@
     align-items:center; flex-wrap:wrap;
   }
   .import-note b{ color:var(--text); }
+  .import-actions input[type=date]{
+    background:var(--surface); border:1px solid var(--line); color:var(--text);
+    border-radius:8px; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:12px;
+    color-scheme:dark;
+  }
+  .import-actions .import-date{
+    display:flex; align-items:center; gap:8px; color:var(--text-muted);
+    font-size:12px; font-family:'Inter',sans-serif;
+  }
 
   main{ max-width:1180px; margin:0 auto; padding:26px 24px 70px; }
   .grid{
@@ -176,11 +185,12 @@
 </div>
 
 <div class="import-panel" id="importPanel" hidden>
-  <textarea id="reportText" placeholder="Paste today's DSE Market Report text here (copy from dse.co.tz or its daily report PDF), then press Parse.&#10;&#10;The board re-analyzes right in your browser — nothing leaves this page."></textarea>
+  <textarea id="reportText" placeholder="Paste today's DSE Market Report text here (copy from dse.co.tz or its daily report PDF), then press Parse.&#10;&#10;Or upload a .txt / .pdf / image via Choose file… — PDFs are read directly, images are run through OCR. The board re-analyzes right in your browser — nothing leaves this page."></textarea>
   <div class="import-actions">
     <button class="filter-btn" id="parseBtn">Parse &amp; add to board</button>
     <button class="filter-btn" id="fileBtn">Choose file…</button>
-    <input type="file" id="fileInput" accept=".txt,.text,text/plain" hidden>
+    <input type="file" id="fileInput" accept=".txt,.text,.pdf,image/*" hidden>
+    <label class="import-date"><input type="date" id="reportDateInput"><span>report date (if not auto-detected)</span></label>
     <span class="import-status" id="importStatus"></span>
   </div>
   <div class="import-note" id="importNote" hidden>
@@ -490,26 +500,81 @@ function updateImportUI(){
   }
 }
 
-function handleImport(rows, reportDate){
+function handleImport(rows, reportDate, manualDate){
   const status = document.getElementById('importStatus');
   if (!rows.length){
     status.textContent = "No counters parsed \u2014 check the report format.";
     status.className = "import-status err";
     return;
   }
-  if (!reportDate){
-    status.textContent = "Could not detect a report date \u2014 the text needs a DATE: DD-Month-YYYY line.";
+  const date = manualDate || reportDate;
+  if (!date){
+    status.textContent = "Could not detect a report date \u2014 set the date field above, or make sure the text has a DATE: DD-Month-YYYY line.";
     status.className = "import-status err";
     return;
   }
   const imported = getImported();
-  rows.forEach(r => r.date = reportDate);
-  imported[reportDate] = rows;
+  rows.forEach(r => r.date = date);
+  imported[date] = rows;
   saveImported(imported);
-  status.textContent = "Added " + rows.length + " counters for " + reportDate + ". Board updated.";
+  status.textContent = "Added " + rows.length + " counters for " + date + ". Board updated.";
   status.className = "import-status ok";
   buildDashboard();
   updateImportUI();
+}
+
+function loadScript(src){
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Could not load ' + src + " \u2014 connect to the internet and retry."));
+    document.head.appendChild(s);
+  });
+}
+
+const PDFJS_VERSION = "3.11.174";
+async function extractPdfText(file){
+  if (!window.pdfjsLib){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS_VERSION + "/pdf.min.js");
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS_VERSION + "/pdf.worker.min.js";
+  }
+  const pdf = await window.pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+  let out = "";
+  for (let p = 1; p <= pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    const rows = {};
+    const ys = [];
+    for (const item of content.items){
+      if (!item.str || item.str.trim() === "") continue;
+      const y = Math.round(item.transform[5]);
+      if (!rows[y]){ rows[y] = []; ys.push(y); }
+      rows[y].push({x: item.transform[4], str: item.str});
+    }
+    ys.sort((a, b) => b - a);   // PDF y grows upward, so larger y = top of page
+    for (const y of ys){
+      rows[y].sort((a, b) => a.x - b.x);
+      out += rows[y].map(it => it.str).join(" ") + "\n";
+    }
+  }
+  return out;
+}
+
+async function ocrImage(file){
+  if (!window.Tesseract){
+    await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
+  }
+  const { data } = await window.Tesseract.recognize(file, "eng");
+  return data.text;
+}
+
+function classifyFile(name){
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  if (ext === "txt" || ext === "text") return "text";
+  if (ext === "pdf") return "pdf";
+  if (["png","jpg","jpeg","gif","bmp","webp","heic","tiff","tif"].includes(ext)) return "image";
+  return "text";
 }
 
 // ---- rendering ----
@@ -577,23 +642,43 @@ document.getElementById('importBtn').addEventListener('click', () => {
 document.getElementById('parseBtn').addEventListener('click', () => {
   const text = document.getElementById('reportText').value;
   const {rows, reportDate} = parseReport(text);
-  handleImport(rows, reportDate);
+  handleImport(rows, reportDate, document.getElementById('reportDateInput').value);
 });
 document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
-document.getElementById('fileInput').addEventListener('change', (e) => {
+document.getElementById('fileInput').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const {rows, reportDate} = parseReport(reader.result);
-    handleImport(rows, reportDate);
-  };
-  reader.readAsText(file);
+  const status = document.getElementById('importStatus');
+  const kind = classifyFile(file.name);
+  try {
+    let text;
+    if (kind === "pdf"){
+      status.textContent = "Extracting text from PDF\u2026";
+      status.className = "import-status";
+      text = await extractPdfText(file);
+      if (!text.trim()) throw new Error("This PDF has no selectable text (likely a scanned image). Save it as .txt, or upload a clear image and let OCR try it.");
+    } else if (kind === "image"){
+      status.textContent = "Running OCR on image\u2026 (first time downloads ~10MB, then 10\u201330s per image)";
+      status.className = "import-status";
+      text = await ocrImage(file);
+    } else {
+      text = await file.text();
+    }
+    const {rows, reportDate} = parseReport(text);
+    handleImport(rows, reportDate, document.getElementById('reportDateInput').value);
+    if (kind !== "text" && rows.length > 0 && rows.length < 28){
+      status.textContent += " Parsed fewer than the usual 28 counters \u2014 OCR/PDF layout may have missed rows; cross-check the original.";
+    }
+  } catch(err){
+    status.textContent = "Import failed: " + err.message;
+    status.className = "import-status err";
+  }
   e.target.value = "";
 });
 document.getElementById('clearImports').addEventListener('click', () => {
   localStorage.removeItem(LS_KEY);
   document.getElementById('reportText').value = "";
+  document.getElementById('reportDateInput').value = "";
   document.getElementById('importStatus').textContent = "";
   document.getElementById('importStatus').className = "import-status";
   buildDashboard();
