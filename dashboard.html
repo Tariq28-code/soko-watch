@@ -283,7 +283,72 @@ function parseReport(rawText){
       offers: toNum(m[12]),
     });
   }
-  return {rows, reportDate};
+  return {rows, reportDate, source: "dse"};
+}
+
+// ---- Alpha Capital's daily market summary (broker format) ----
+// Only lists the day's TOP MOVERS: ticker + close + volume + turnover.
+// Missing fields (OHLC, deals, bids/offers, market cap) are left null,
+// never guessed.
+const ALPHA_MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+const ALPHA_DATE_RE = /(\d{1,2})[-/\s]([A-Za-z]{3})[-/\s](\d{2,4})/;
+const ALPHA_MOVER_RE = /([A-Z]{2,10})\s+([\d,]+)\s+([\d,]+)\s+([\d.]+)\s+(Mln|Bln|Tln)/g;
+
+function alphaTurnover(value, unit){
+  const mult = {Mln:1e6, Bln:1e9, Tln:1e12}[unit] || 1;
+  return parseFloat(value) * mult;
+}
+
+function parseAlphaReport(rawText){
+  let reportDate = null;
+  const dm = rawText.match(ALPHA_DATE_RE);
+  if (dm){
+    const day = parseInt(dm[1], 10);
+    const month = ALPHA_MONTHS[dm[2].toLowerCase()];
+    let year = parseInt(dm[3], 10);
+    if (year < 100) year += 2000;
+    if (month && day && year){
+      reportDate = year + "-" + String(month).padStart(2,"0") + "-" + String(day).padStart(2,"0");
+    }
+  }
+  const moversAt = rawText.indexOf("MOVERS");
+  let section = rawText;
+  if (moversAt !== -1){
+    const endAt = rawText.indexOf("MARKET INDICES", moversAt);
+    section = endAt === -1 ? rawText.slice(moversAt) : rawText.slice(moversAt, endAt);
+  }
+  const rows = [];
+  const seen = {};
+  let m;
+  ALPHA_MOVER_RE.lastIndex = 0;
+  while ((m = ALPHA_MOVER_RE.exec(section)) !== null){
+    const symbol = m[1];
+    if (seen[symbol]) continue;
+    seen[symbol] = 1;
+    rows.push({
+      symbol: symbol,
+      suspended: false,
+      open: null,
+      close: parseFloat(m[2].replace(/,/g, "")),
+      high: null,
+      low: null,
+      turnover_tzs: alphaTurnover(m[4], m[5]),
+      deals: null,
+      volume: parseFloat(m[3].replace(/,/g, "")),
+      market_cap_bln_tzs: null,
+      bids: null,
+      offers: null,
+    });
+  }
+  return {rows, reportDate, source: "alpha"};
+}
+
+function parseSmart(text){
+  const dse = parseReport(text);
+  if (dse.rows.length) return dse;
+  const alpha = parseAlphaReport(text);
+  if (alpha.rows.length) return alpha;
+  return dse;
 }
 
 // ---- analysis.py port: history + fundamentals -> signals ----
@@ -679,8 +744,12 @@ document.getElementById('importBtn').addEventListener('click', () => {
 });
 document.getElementById('parseBtn').addEventListener('click', () => {
   const text = document.getElementById('reportText').value;
-  const {rows, reportDate} = parseReport(text);
-  handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, "text");
+  const {rows, reportDate, source} = parseSmart(text);
+  handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, source);
+  if (rows.length > 0 && source === "alpha"){
+    const status = document.getElementById('importStatus');
+    status.textContent += " Only the top movers are listed in Alpha Capital's format \u2014 other counters keep their previous data.";
+  }
 });
 document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
 document.getElementById('fileInput').addEventListener('change', async (e) => {
@@ -703,9 +772,11 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
       text = await file.text();
     }
     document.getElementById('reportText').value = text;
-    const {rows, reportDate} = parseReport(text);
+    const {rows, reportDate, source} = parseSmart(text);
     handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, kind);
-    if (rows.length > 0 && rows.length < 28){
+    if (rows.length > 0 && source === "alpha"){
+      status.textContent += " Only the top movers are listed in Alpha Capital's format \u2014 other counters keep their previous data.";
+    } else if (rows.length > 0 && rows.length < 28){
       status.textContent += " Extracted text is in the box above \u2014 parsed fewer than the usual 28 counters, so check/fix it and re-parse.";
     } else if (rows.length > 0){
       status.textContent += " Extracted text is in the box above if you want to inspect it.";

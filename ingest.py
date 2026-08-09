@@ -13,7 +13,7 @@ How you get the raw text (pick one, in order of how automated it is):
 """
 
 import sys
-from parser import parse_report
+from parser import parse_report, parse_alpha_report
 from database import init_db, insert_rows
 
 
@@ -21,15 +21,20 @@ def ingest_file(path, db_path="dse.db"):
     with open(path, encoding="utf-8") as f:
         raw_text = f.read()
     rows, report_date = parse_report(raw_text)
+    source = "dse"
     if not rows:
-        print("No counters parsed — check the report text / format.")
+        # Not DSE's own format — try Alpha Capital's daily market summary.
+        rows, report_date = parse_alpha_report(raw_text)
+        source = "alpha"
+    if not rows:
+        print("No counters parsed — check the report format.")
         return
     if report_date is None:
         print("Warning: could not detect a report date. Skipping insert.")
         return
     init_db(db_path)
     n = insert_rows(rows, report_date, db_path)
-    print(f"Ingested {n} counters for {report_date} into {db_path}")
+    print(f"Ingested {n} counters ({source} format) for {report_date} into {db_path}")
 
 
 if __name__ == "__main__":

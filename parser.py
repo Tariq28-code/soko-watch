@@ -51,6 +51,80 @@ def _parse_date(date_str):
     return datetime(year, month, day).date()
 
 
+# --------------------------------------------------------------------------
+# Alpha Capital's "Daily Market Report" (a broker summary). Different from
+# DSE's own report: it only lists the day's TOP MOVERS, and each mover row
+# carries just ticker + close price + volume + turnover — no OHLC, deals,
+# market cap, or order book. Missing fields are left as None (never guessed).
+# Format of a mover row, e.g.:
+#     CRDB 2,580 815,675 2.11 Bln 68.63%
+#     (ticker  price  volume  turnover  %YTD)
+# --------------------------------------------------------------------------
+
+ALPHA_MONTHS_ABBR = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+# matches a date like "4-Aug-26" or "4-Aug-2026"
+ALPHA_DATE_RE = re.compile(r"(\d{1,2})[-/\s]([A-Za-z]{3})[-/\s](\d{2,4})")
+# ticker, price, volume, turnover-value, turnover-unit ("Mln"/"Bln"/"Tln")
+ALPHA_MOVER_RE = re.compile(
+    r"([A-Z]{2,10})\s+([\d,]+)\s+([\d,]+)\s+([\d.]+)\s+(Mln|Bln|Tln)"
+)
+
+TURNOVER_MULT = {"Mln": 1e6, "Bln": 1e9, "Tln": 1e12}
+
+
+def parse_alpha_report(raw_text: str):
+    """
+    Parses Alpha Capital's daily market summary. Returns (rows, report_date)
+    in the same schema as parse_report, with only the fields the report
+    actually carries populated. Returns ([], None) if no movers are found.
+    """
+    report_date = None
+    dm = ALPHA_DATE_RE.search(raw_text)
+    if dm:
+        day = int(dm.group(1))
+        month = ALPHA_MONTHS_ABBR.get(dm.group(2).lower())
+        year = int(dm.group(3))
+        if year < 100:
+            year += 2000
+        if month:
+            report_date = datetime(year, month, day).date()
+
+    # Only scan the "MOVERS" section so other blocks (ETFs, fixed income,
+    # indices) can't be misread as movers.
+    start = raw_text.find("MOVERS")
+    if start == -1:
+        return [], None
+    end_marker = raw_text.find("MARKET INDICES", start)
+    section = raw_text[start:] if end_marker == -1 else raw_text[start:end_marker]
+
+    rows = []
+    seen = set()
+    for m in ALPHA_MOVER_RE.finditer(section):
+        symbol = m.group(1)
+        if symbol in seen:
+            continue
+        seen.add(symbol)
+        rows.append({
+            "symbol": symbol,
+            "suspended": False,
+            "open": None,
+            "close": _to_num(m.group(2)),
+            "high": None,
+            "low": None,
+            "turnover_tzs": float(m.group(4)) * TURNOVER_MULT.get(m.group(5), 1),
+            "deals": None,
+            "volume": _to_num(m.group(3)),
+            "market_cap_bln_tzs": None,
+            "bids": None,
+            "offers": None,
+        })
+    return rows, report_date
+
+
 def parse_report(raw_text: str):
     """
     Returns (rows, report_date)

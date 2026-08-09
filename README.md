@@ -77,6 +77,21 @@ public site won't change. To publish an imported report for everyone,
 still save the text to `reports/YYYY-MM-DD.txt` and push; the
 server-side pipeline then produces the authoritative data.
 
+**Supported report formats** (auto-detected, no format toggle needed):
+
+- **DSE's own daily report** ("EQUITY DAILY PRICES") — full data: OHLC,
+  turnover, deals, volume, market cap, bids, offers. This is the
+  format `sample_report.txt` uses, and the only one the full analysis
+  (order-book pressure, liquidity) can run on.
+- **Alpha Capital's daily market summary** (broker format) — partial
+  data: it lists only the day's **top movers**, each with ticker,
+  close price, volume, and turnover. Open/high/low, deals, and
+  bids/offers are unknown for this format, so those counters get a
+  price-only update and order-book/liquidity signals stay muted.
+
+Both parsers share the same schema; `ingest.py` tries the DSE format
+first and falls back to the Alpha format automatically.
+
 ## Deployment (GitHub Pages — set up)
 
 The repo ships with `.github/workflows/deploy.yml`. It rebuilds the
