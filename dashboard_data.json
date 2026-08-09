@@ -1,0 +1,383 @@
+{
+  "generated_from_latest_report": "2025-02-18",
+  "counters": [
+    {
+      "symbol": "AFRIPRISE",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 220.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 88% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "CRDB",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0.5,
+      "last_close": 720.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is buyer-heavy \u2014 69% of outstanding orders are bids (demand outweighs supply).",
+        "Last declared dividend: TZS 90 per share."
+      ]
+    },
+    {
+      "symbol": "DCB",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 135.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 99% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "DSE",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0.5,
+      "last_close": 2280.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is buyer-heavy \u2014 100% of outstanding orders are bids (demand outweighs supply).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "EABL",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 3800.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "JATU",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -1.0,
+      "last_close": 265.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "JHL",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 4000.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "KA",
+      "call": "SUSPENDED",
+      "confidence": "n/a",
+      "last_close": 80.0,
+      "facts": [
+        "Trading in this counter is currently suspended."
+      ]
+    },
+    {
+      "symbol": "KCB",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 890.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "MBP",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 310.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 97% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "MCB",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 310.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 97% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "MKCB",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 600.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 99% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "MUCOBA",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 400.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "NICO",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0.5,
+      "last_close": 640.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is buyer-heavy \u2014 71% of outstanding orders are bids (demand outweighs supply).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "NMB",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 5700.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 92% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "NMG",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 280.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "PAL",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 400.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "SWALA",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 450.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "SWIS",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0.5,
+      "last_close": 1000.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is buyer-heavy \u2014 94% of outstanding orders are bids (demand outweighs supply).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "TBL",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 10900.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "TCC",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 17000.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "TCCL",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0,
+      "last_close": 1900.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "TOL",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0.0,
+      "last_close": 670.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "Order book is buyer-heavy \u2014 100% of outstanding orders are bids (demand outweighs supply).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "TPCC",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0,
+      "last_close": 4000.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "TTP",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0.0,
+      "last_close": 120.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "Order book is buyer-heavy \u2014 100% of outstanding orders are bids (demand outweighs supply).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "USL",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 5.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "VODA",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 770.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
+      "symbol": "YETU",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": -0.5,
+      "last_close": 510.0,
+      "last_date": "2025-02-18",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    }
+  ]
+}

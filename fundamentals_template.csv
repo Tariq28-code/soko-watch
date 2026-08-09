@@ -1,0 +1,5 @@
+symbol,period_end,period_type,revenue_mln_tzs,net_income_mln_tzs,total_debt_mln_tzs,total_equity_mln_tzs,total_assets_mln_tzs,dividend_per_share_tzs,source
+CRDB,2025-09-30,quarterly,,522800,,2550600,20458900,,Q3 2025 interim report (9-month cumulative PAT; bank - deposits not treated as debt, see README)
+CRDB,2025-12-31,annual,,724600,,,22220000,90,FY2025 abridged report (Feb 2026)
+NMB,2025-12-31,annual,,,,,,,FY2025 annual report - fill in from company IR page
+TBL,2025-12-31,annual,,,,,,,FY2025 annual report - fill in from company IR page

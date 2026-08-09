@@ -1,0 +1,77 @@
+name: Deploy Soko Watch to GitHub Pages
+
+# Runs:
+#   - on every push to main
+#   - on a schedule (17:30 EAT, Mon-Fri — after market close)
+#   - manually via the Actions tab ("Run workflow")
+#
+# The data pipeline is re-run on each build so the site always reflects
+# every committed daily report + fundamentals row. It is idempotent —
+# re-ingesting a report you already have just overwrites the same rows.
+#
+# robots.txt note: this never crawls dse.co.tz. Report text arrives via
+# the human copy-paste workflow in fetch_note.md, committed as plain
+# .txt files under reports/. This workflow only reads those committed
+# files, so it makes zero requests to dse.co.tz.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "30 14 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Ingest daily reports
+        shell: bash
+        run: |
+          mkdir -p reports
+          for f in reports/*.txt sample_report.txt; do
+            [ -f "$f" ] && python ingest.py "$f" || true
+          done
+
+      - name: Load fundamentals
+        shell: bash
+        run: python load_fundamentals.py fundamentals_template.csv || true
+
+      - name: Export dashboard data
+        run: python export_dashboard.py
+
+      - name: Stage static site
+        shell: bash
+        run: |
+          mkdir -p _site
+          cp dashboard.html _site/index.html
+          cp dashboard_data.json _site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
