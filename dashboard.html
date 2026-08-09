@@ -956,7 +956,10 @@ document.getElementById('importBtn').addEventListener('click', () => {
 document.getElementById('historyBtn').addEventListener('click', () => {
   const sec = document.getElementById('importsHistory');
   const hasContent = renderHistory();
-  if (!hasContent) return;
+  if (!hasContent){
+    showBanner("No imports found on this page/device yet. Note: imports are saved per browser origin \u2014 if you imported while viewing the page as a local file (file://), those won't appear here on the hosted site. Import on this exact page and it will show.", "err");
+    return;
+  }
   sec.hidden = !sec.hidden;
   document.getElementById('historyBtn').classList.toggle('active', !sec.hidden);
 });
