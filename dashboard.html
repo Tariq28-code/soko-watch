@@ -254,6 +254,7 @@
   <div class="imports-history-head">
     <h2>Past imports</h2>
     <span class="imports-history-note">Saved in this browser only — push reports to <b>reports/</b> to publish them for everyone.</span>
+    <span class="imports-history-note" id="uploadCountNote"></span>
   </div>
   <div class="imports-list" id="importsList"></div>
 </section>
@@ -276,6 +277,7 @@ let serverHistory = {};
 let serverFundamentals = {};
 
 const LS_KEY = "soko_watch_imports";
+const LS_COUNT_KEY = "soko_watch_upload_count";
 const MIN_POINTS_FOR_TREND = 5;
 
 function fmtTZS(n){
@@ -574,6 +576,14 @@ function getImported(){
 function saveImported(obj){
   try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e) {}
 }
+function getUploadCount(){
+  try { return parseInt(localStorage.getItem(LS_COUNT_KEY) || "0", 10) || 0; } catch(e) { return 0; }
+}
+function bumpUploadCount(){
+  const n = getUploadCount() + 1;
+  try { localStorage.setItem(LS_COUNT_KEY, String(n)); } catch(e) {}
+  return n;
+}
 function importedSymbols(imported){
   const out = new Set();
   for (const dateISO of Object.keys(imported)){
@@ -693,6 +703,7 @@ function renderHistory(){
   const list = document.getElementById('importsList');
   const imported = getImported();
   const dates = Object.keys(imported).sort().reverse();
+  document.getElementById('uploadCountNote').textContent = "You've uploaded " + getUploadCount() + " report(s) on this device.";
   if (dates.length === 0){ sec.hidden = true; list.innerHTML = ""; return; }
   sec.hidden = false;
   list.innerHTML = "";
@@ -742,6 +753,7 @@ function handleImport(rows, reportDate, manualDate, rawText, fileKind, src){
   rows.forEach(r => r.date = date);
   imported[date] = {source: src || "text", importedAt: new Date().toISOString(), rows: rows};
   saveImported(imported);
+  bumpUploadCount();
 
   const fullParse = rows.length >= 28 || src === "alpha";
   if (fullParse){
