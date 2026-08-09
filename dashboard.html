@@ -85,6 +85,9 @@
   .filter-btn.active{ background:var(--surface-hi); color:var(--text); border-color:var(--hold); }
   .import-btn{ border-color:var(--buy); color:var(--buy); }
   .import-btn:hover{ background:var(--buy-dim); border-color:var(--buy); color:var(--buy); }
+  .history-btn{ border-color:var(--hold); color:var(--hold); }
+  .history-btn:hover{ background:var(--hold-dim); border-color:var(--hold); color:var(--hold); }
+  .history-btn.active{ background:var(--hold-dim); border-color:var(--hold); color:var(--hold); }
 
   .import-panel{
     max-width:1180px; margin:18px auto 0; padding:0 24px;
@@ -234,6 +237,7 @@
   <button class="filter-btn" data-filter="HOLD">HOLD</button>
   <button class="filter-btn" data-filter="WATCH">WATCH</button>
   <button class="filter-btn" data-filter="SELL">SELL</button>
+  <button class="filter-btn history-btn" id="historyBtn">History</button>
   <button class="filter-btn import-btn" id="importBtn">+ Import report</button>
 </div>
 
@@ -727,8 +731,12 @@ function renderHistory(){
   const imported = getImported();
   const dates = Object.keys(imported).sort().reverse();
   const total = getUploadCount();
-  if (dates.length === 0){ sec.hidden = true; list.innerHTML = ""; return; }
-  sec.hidden = false;
+  if (dates.length === 0){
+    sec.hidden = true;
+    document.getElementById('historyBtn').classList.remove('active');
+    list.innerHTML = "";
+    return false;
+  }
 
   document.getElementById('statTotal').innerHTML = total + ' <small>upload(s)</small>';
   document.getElementById('statReports').innerHTML = dates.length + ' <small>date(s)</small>';
@@ -763,6 +771,7 @@ function renderHistory(){
       renderHistory();
     });
   });
+  return true;
 }
 
 function handleImport(rows, reportDate, manualDate, rawText, fileKind, src){
@@ -943,6 +952,13 @@ document.getElementById('importBtn').addEventListener('click', () => {
   const panel = document.getElementById('importPanel');
   panel.hidden = !panel.hidden;
   if (!panel.hidden) updateImportUI();
+});
+document.getElementById('historyBtn').addEventListener('click', () => {
+  const sec = document.getElementById('importsHistory');
+  const hasContent = renderHistory();
+  if (!hasContent) return;
+  sec.hidden = !sec.hidden;
+  document.getElementById('historyBtn').classList.toggle('active', !sec.hidden);
 });
 document.getElementById('parseBtn').addEventListener('click', () => {
   const text = document.getElementById('reportText').value;
