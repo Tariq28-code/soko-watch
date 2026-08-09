@@ -114,6 +114,14 @@
     display:flex; align-items:center; gap:8px; color:var(--text-muted);
     font-size:12px; font-family:'Inter',sans-serif;
   }
+  .import-preview{
+    margin-top:12px; padding:10px 12px; border:1px dashed var(--line); border-radius:8px;
+    background:var(--surface); font-family:'JetBrains Mono',monospace; font-size:11.5px;
+    color:var(--text-muted); max-height:220px; overflow:auto; white-space:pre-wrap; word-break:break-all;
+  }
+  .import-preview b{
+    color:var(--sell); font-family:'Inter',sans-serif; font-size:12px; display:block; margin-bottom:6px;
+  }
 
   main{ max-width:1180px; margin:0 auto; padding:26px 24px 70px; }
   .grid{
@@ -193,6 +201,7 @@
     <label class="import-date"><input type="date" id="reportDateInput"><span>report date (if not auto-detected)</span></label>
     <span class="import-status" id="importStatus"></span>
   </div>
+  <div class="import-preview" id="importPreview" hidden></div>
   <div class="import-note" id="importNote" hidden>
     <span>Imported locally: <b id="importCount"></b> report(s) — saved in this browser. To publish for everyone, save the same text to <b>reports/&lt;date&gt;.txt</b> and git push.</span>
     <button class="filter-btn" id="clearImports">Clear imports</button>
@@ -500,13 +509,42 @@ function updateImportUI(){
   }
 }
 
-function handleImport(rows, reportDate, manualDate){
+function escapeHtml(s){
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function showPreview(text){
+  const pre = document.getElementById('importPreview');
+  if (!text || !text.trim()){ pre.hidden = true; return; }
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length);
+  pre.innerHTML = "<b>Extracted text preview (first 12 of " + lines.length + " lines)</b>" +
+    escapeHtml(lines.slice(0, 12).join("\n"));
+  pre.hidden = false;
+}
+
+function describeFailure(text, kind){
+  const lines = text ? text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length) : [];
+  const upper = (text || "").toUpperCase();
+  if (upper.includes("ALPHA CAPITAL") || upper.includes("DAILY MARKET REPORT")){
+    return "No counters parsed \u2014 this looks like a broker's market summary (e.g. Alpha Capital), not DSE's own \u201cEQUITY DAILY PRICES\u201d report. It doesn't include each counter's Open/Close/High/Low/Deals/Outstanding Bids/Offers, so Soko Watch can't analyze it. Use DSE's official daily report instead (the text from dse.co.tz's market report page, or its \u201cDownload Daily Report\u201d file).";
+  }
+  if (!lines.length){
+    return "No counters parsed \u2014 no readable text was extracted" +
+      (kind === "pdf" ? " (the PDF may be a scanned image with no text layer; try a clear image upload or the .txt route)" : "") + ".";
+  }
+  return "No counters parsed \u2014 " + lines.length + " lines of text were read but none matched the expected row format:\nSYMBOL open close high low turnover deals volume market_cap bids offers\n(e.g.  CRDB 710 720 730 710 1,042,638,710 303 1,483,268 1,880.52 614,913 273,618)\nIf this is DSE's own report, the PDF/OCR layout likely scrambled the columns \u2014 inspect the preview and fix, or copy-paste the report text instead.";
+}
+
+function handleImport(rows, reportDate, manualDate, rawText, kind){
   const status = document.getElementById('importStatus');
+  const pre = document.getElementById('importPreview');
   if (!rows.length){
-    status.textContent = "No counters parsed \u2014 check the report format.";
+    status.textContent = describeFailure(rawText, kind);
     status.className = "import-status err";
+    showPreview(rawText);
     return;
   }
+  pre.hidden = true;
   const date = manualDate || reportDate;
   if (!date){
     status.textContent = "Could not detect a report date \u2014 set the date field above, or make sure the text has a DATE: DD-Month-YYYY line.";
@@ -642,7 +680,7 @@ document.getElementById('importBtn').addEventListener('click', () => {
 document.getElementById('parseBtn').addEventListener('click', () => {
   const text = document.getElementById('reportText').value;
   const {rows, reportDate} = parseReport(text);
-  handleImport(rows, reportDate, document.getElementById('reportDateInput').value);
+  handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, "text");
 });
 document.getElementById('fileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
 document.getElementById('fileInput').addEventListener('change', async (e) => {
@@ -656,7 +694,7 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
       status.textContent = "Extracting text from PDF\u2026";
       status.className = "import-status";
       text = await extractPdfText(file);
-      if (!text.trim()) throw new Error("This PDF has no selectable text (likely a scanned image). Save it as .txt, or upload a clear image and let OCR try it.");
+      if (!text.trim()) throw new Error("This PDF has no selectable text (likely a scanned image). Try a clear image upload (OCR) or the copy-paste .txt route.");
     } else if (kind === "image"){
       status.textContent = "Running OCR on image\u2026 (first time downloads ~10MB, then 10\u201330s per image)";
       status.className = "import-status";
@@ -664,10 +702,13 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
     } else {
       text = await file.text();
     }
+    document.getElementById('reportText').value = text;
     const {rows, reportDate} = parseReport(text);
-    handleImport(rows, reportDate, document.getElementById('reportDateInput').value);
-    if (kind !== "text" && rows.length > 0 && rows.length < 28){
-      status.textContent += " Parsed fewer than the usual 28 counters \u2014 OCR/PDF layout may have missed rows; cross-check the original.";
+    handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, kind);
+    if (rows.length > 0 && rows.length < 28){
+      status.textContent += " Extracted text is in the box above \u2014 parsed fewer than the usual 28 counters, so check/fix it and re-parse.";
+    } else if (rows.length > 0){
+      status.textContent += " Extracted text is in the box above if you want to inspect it.";
     }
   } catch(err){
     status.textContent = "Import failed: " + err.message;
@@ -681,6 +722,7 @@ document.getElementById('clearImports').addEventListener('click', () => {
   document.getElementById('reportDateInput').value = "";
   document.getElementById('importStatus').textContent = "";
   document.getElementById('importStatus').className = "import-status";
+  document.getElementById('importPreview').hidden = true;
   buildDashboard();
   updateImportUI();
 });
