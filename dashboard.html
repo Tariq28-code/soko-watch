@@ -743,16 +743,21 @@ function handleImport(rows, reportDate, manualDate, rawText, fileKind, src){
   imported[date] = {source: src || "text", importedAt: new Date().toISOString(), rows: rows};
   saveImported(imported);
 
-  let msg = "Report for " + date + " imported \u2014 " + rows.length + " counters analyzed and the board updated. Saved under Past imports below.";
-  if (src === "alpha") msg += " Only the top movers are listed in Alpha Capital's format \u2014 other counters keep their previous data.";
-  showBanner(msg, "ok");
-
-  // Clear the upload area for the next report.
-  document.getElementById('reportText').value = "";
-  document.getElementById('reportDateInput').value = "";
-  document.getElementById('importPanel').hidden = true;
-  document.getElementById('importStatus').textContent = "";
-  document.getElementById('importStatus').className = "import-status";
+  const fullParse = rows.length >= 28 || src === "alpha";
+  if (fullParse){
+    let msg = "Report for " + date + " imported \u2014 " + rows.length + " counters analyzed and the board updated. Saved under Past imports below.";
+    if (src === "alpha") msg += " Only the top movers are listed in Alpha Capital's format \u2014 other counters keep their previous data.";
+    showBanner(msg, "ok");
+    // Clear the upload area for the next report.
+    document.getElementById('reportText').value = "";
+    document.getElementById('reportDateInput').value = "";
+    document.getElementById('importPanel').hidden = true;
+    document.getElementById('importStatus').textContent = "";
+    document.getElementById('importStatus').className = "import-status";
+  } else {
+    // Too few counters: leave the extracted text in the box so it can be checked/fixed and re-parsed.
+    showBanner("Extracted text is in the box above \u2014 parsed fewer than the usual 28 counters, so check/fix it and re-parse.", "ok");
+  }
 
   buildDashboard();
   updateImportUI();
@@ -920,9 +925,6 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
     document.getElementById('reportText').value = text;
     const {rows, reportDate, source} = parseSmart(text);
     handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, kind, source);
-    if (rows.length > 0 && rows.length < 28){
-      showBanner("Extracted text is in the box above \u2014 parsed fewer than the usual 28 counters, so check/fix it and re-parse.", "ok");
-    }
   } catch(err){
     status.textContent = "Import failed: " + err.message;
     status.className = "import-status err";
