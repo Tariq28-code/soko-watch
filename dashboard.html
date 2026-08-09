@@ -136,6 +136,16 @@
   .imports-history-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
   .imports-history-head h2{ font-family:'Space Grotesk',sans-serif; font-size:18px; margin:0; }
   .imports-history-note{ font-size:12px; color:var(--text-muted); }
+  .imports-summary{
+    display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;
+  }
+  .imports-summary .stat{
+    flex:1; min-width:150px; background:var(--surface); border:1px solid var(--line);
+    border-radius:10px; padding:14px 16px;
+  }
+  .imports-summary .stat .stat-label{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:6px; }
+  .imports-summary .stat .stat-value{ font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; color:var(--text); }
+  .imports-summary .stat .stat-value small{ font-size:12px; color:var(--text-muted); font-weight:400; }
   .imports-list{ display:flex; flex-direction:column; gap:10px; }
   .import-item{
     background:var(--surface); border:1px solid var(--line); border-radius:10px;
@@ -254,7 +264,20 @@
   <div class="imports-history-head">
     <h2>Past imports</h2>
     <span class="imports-history-note">Saved in this browser only — push reports to <b>reports/</b> to publish them for everyone.</span>
-    <span class="imports-history-note" id="uploadCountNote"></span>
+  </div>
+  <div class="imports-summary">
+    <div class="stat">
+      <div class="stat-label">Total uploads</div>
+      <div class="stat-value" id="statTotal">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Reports saved</div>
+      <div class="stat-value" id="statReports">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Latest upload</div>
+      <div class="stat-value" id="statLatest"><small>—</small></div>
+    </div>
   </div>
   <div class="imports-list" id="importsList"></div>
 </section>
@@ -703,15 +726,21 @@ function renderHistory(){
   const list = document.getElementById('importsList');
   const imported = getImported();
   const dates = Object.keys(imported).sort().reverse();
-  document.getElementById('uploadCountNote').textContent = "You've uploaded " + getUploadCount() + " report(s) on this device.";
+  const total = getUploadCount();
   if (dates.length === 0){ sec.hidden = true; list.innerHTML = ""; return; }
   sec.hidden = false;
+
+  document.getElementById('statTotal').innerHTML = total + ' <small>upload(s)</small>';
+  document.getElementById('statReports').innerHTML = dates.length + ' <small>date(s)</small>';
+  const latest = imported[dates[0]];
+  document.getElementById('statLatest').innerHTML = (latest.importedAt ? new Date(latest.importedAt).toLocaleString() : dates[0]);
+
   list.innerHTML = "";
   for (const d of dates){
     const entry = imported[d];
     const rows = entry.rows || [];
     const src = entry.source || "text";
-    const when = entry.importedAt ? " \u00b7 " + new Date(entry.importedAt).toLocaleString() : "";
+    const when = entry.importedAt ? new Date(entry.importedAt).toLocaleString() : "no timestamp (imported before tracking started)";
     const shown = rows.slice(0, 6).map(r => "<b>" + escapeHtml(r.symbol) + "</b> " + (r.close != null ? fmtTZS(r.close) : "\u2014")).join(", ");
     const more = rows.length > 6 ? " +" + (rows.length - 6) + " more" : "";
     const div = document.createElement('div');
@@ -719,7 +748,7 @@ function renderHistory(){
     div.innerHTML =
       '<div class="date">' + d + '</div>' +
       '<div class="src ' + src + '">' + src.toUpperCase() + '</div>' +
-      '<div class="meta">' + rows.length + ' counter(s)' + when + '</div>' +
+      '<div class="meta">' + rows.length + ' counter(s)<br><b>Uploaded:</b> ' + when + '</div>' +
       '<div class="counters">' + shown + more + '</div>' +
       '<button class="remove" data-date="' + d + '">Remove</button>';
     list.appendChild(div);
