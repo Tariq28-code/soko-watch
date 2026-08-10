@@ -261,10 +261,6 @@
 
 <div class="result-banner" id="resultBanner" hidden></div>
 
-<main>
-  <div class="grid" id="cardGrid"></div>
-</main>
-
 <section class="imports-history" id="importsHistory" hidden>
   <div class="imports-history-head">
     <h2>Past imports</h2>
@@ -286,6 +282,10 @@
   </div>
   <div class="imports-list" id="importsList"></div>
 </section>
+
+<main>
+  <div class="grid" id="cardGrid"></div>
+</main>
 
 <footer>
   <b>How to read this board:</b> each call (BUY / HOLD / WATCH / SELL) is generated from price trend, recent momentum, how often the counter actually trades, and whether outstanding orders lean toward buyers or sellers — never from a single number. Most DSE counters trade thinly, so a lot of counters honestly land on WATCH until more daily reports have been ingested. This board reflects <b id="footerDate">—</b>'s report only; run the ingest pipeline daily to build real trend history.
