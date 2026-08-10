@@ -162,6 +162,7 @@
   .import-item .src.dse{ background:var(--hold-dim); color:var(--hold); }
   .import-item .src.alpha{ background:var(--buy-dim); color:var(--buy); }
   .import-item .src.text{ background:var(--watch-dim); color:var(--watch); }
+  .import-item .src.repo{ background:var(--buy-dim); color:var(--buy); }
   .import-item .meta{ font-size:12px; color:var(--text-muted); }
   .import-item .counters{ flex:1; min-width:180px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); }
   .import-item .counters b{ color:var(--text); }
@@ -267,7 +268,7 @@
 <section class="imports-history" id="importsHistory" hidden>
   <div class="imports-history-head">
     <h2>Past imports</h2>
-    <span class="imports-history-note">Saved in this browser only — push reports to <b>reports/</b> to publish them for everyone.</span>
+    <span class="imports-history-note">Shows reports pushed to <b>reports/</b> (REPO) plus your browser-only imports (saved in this browser only).</span>
   </div>
   <div class="imports-summary">
     <div class="stat">
@@ -725,13 +726,28 @@ function showBanner(message, cls){
   b.querySelector('.close').addEventListener('click', () => b.hidden = true);
 }
 
+function serverReports(){
+  const byDate = {};
+  for (const symbol of Object.keys(serverHistory)){
+    for (const r of (serverHistory[symbol] || [])){
+      if (!r.date) continue;
+      if (!byDate[r.date]) byDate[r.date] = [];
+      byDate[r.date].push(r);
+    }
+  }
+  return byDate;
+}
+
 function renderHistory(){
   const sec = document.getElementById('importsHistory');
   const list = document.getElementById('importsList');
   const imported = getImported();
-  const dates = Object.keys(imported).sort().reverse();
+  const committed = serverReports();
+  const dates = Object.keys(imported);
+  for (const d of Object.keys(committed)) if (!(d in imported)) dates.push(d);
+  const sorted = dates.sort().reverse();
   const total = getUploadCount();
-  if (dates.length === 0){
+  if (sorted.length === 0){
     sec.hidden = true;
     document.getElementById('historyBtn').classList.remove('active');
     list.innerHTML = "";
@@ -739,16 +755,18 @@ function renderHistory(){
   }
 
   document.getElementById('statTotal').innerHTML = total + ' <small>upload(s)</small>';
-  document.getElementById('statReports').innerHTML = dates.length + ' <small>date(s)</small>';
-  const latest = imported[dates[0]];
-  document.getElementById('statLatest').innerHTML = (latest.importedAt ? new Date(latest.importedAt).toLocaleString() : dates[0]);
+  document.getElementById('statReports').innerHTML = sorted.length + ' <small>date(s)</small>';
+  const topLocal = imported[sorted[0]];
+  document.getElementById('statLatest').innerHTML = (topLocal && topLocal.importedAt ? new Date(topLocal.importedAt).toLocaleString() : sorted[0]);
 
   list.innerHTML = "";
-  for (const d of dates){
-    const entry = imported[d];
-    const rows = entry.rows || [];
-    const src = entry.source || "text";
-    const when = entry.importedAt ? new Date(entry.importedAt).toLocaleString() : "no timestamp (imported before tracking started)";
+  for (const d of sorted){
+    const local = imported[d];
+    const rows = local ? (local.rows || []) : committed[d];
+    const src = local ? (local.source || "text") : "repo";
+    const when = local
+      ? (local.importedAt ? new Date(local.importedAt).toLocaleString() : "no timestamp (imported before tracking started)")
+      : "committed in reports/ \u2014 published for everyone";
     const shown = rows.slice(0, 6).map(r => "<b>" + escapeHtml(r.symbol) + "</b> " + (r.close != null ? fmtTZS(r.close) : "\u2014")).join(", ");
     const more = rows.length > 6 ? " +" + (rows.length - 6) + " more" : "";
     const div = document.createElement('div');
@@ -758,7 +776,7 @@ function renderHistory(){
       '<div class="src ' + src + '">' + src.toUpperCase() + '</div>' +
       '<div class="meta">' + rows.length + ' counter(s)<br><b>Uploaded:</b> ' + when + '</div>' +
       '<div class="counters">' + shown + more + '</div>' +
-      '<button class="remove" data-date="' + d + '">Remove</button>';
+      (local ? '<button class="remove" data-date="' + d + '">Remove</button>' : '');
     list.appendChild(div);
   }
   list.querySelectorAll('.remove').forEach(btn => {
