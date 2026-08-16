@@ -19,11 +19,23 @@ from datetime import datetime
 MIN_POINTS_FOR_TREND = 5
 
 
+def _is_traded(h):
+    """A session counts as traded when we can see the counter actually
+    moved that day: either explicit volume (>0; DSE full reports, Alpha
+    movers) or a real close price where volume wasn't provided (Alpha
+    gainers/losers rows — that report only lists counters that traded).
+    Volume of exactly 0 (untraded days in DSE's full report) stays
+    excluded."""
+    if h.get("volume"):
+        return True
+    return h.get("volume") in (None, "") and h.get("close") is not None
+
+
 def _traded_closes(history):
-    """Only keep days where the counter actually traded (volume > 0),
+    """Only keep days where the counter actually traded (see _is_traded),
     since untraded days repeat the last close and would flatten trend
     signals artificially."""
-    return [h for h in history if h["volume"] and h["volume"] > 0]
+    return [h for h in history if _is_traded(h)]
 
 
 def _sma(values, n):
@@ -149,7 +161,7 @@ def compute_signals(symbol, history, fundamentals=None):
 
     # --- 4. Liquidity: how often/how much it actually trades ---
     recent = history[-10:]
-    trade_days = sum(1 for h in recent if h["volume"] and h["volume"] > 0)
+    trade_days = sum(1 for h in recent if _is_traded(h))
     liquidity_ratio = trade_days / len(recent)
     if liquidity_ratio < 0.3:
         facts.append(f"Thinly traded — only active on {trade_days}/{len(recent)} of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.")

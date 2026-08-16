@@ -53,12 +53,19 @@ def _parse_date(date_str):
 
 # --------------------------------------------------------------------------
 # Alpha Capital's "Daily Market Report" (a broker summary). Different from
-# DSE's own report: it only lists the day's TOP MOVERS, and each mover row
-# carries just ticker + close price + volume + turnover — no OHLC, deals,
-# market cap, or order book. Missing fields are left as None (never guessed).
+# DSE's own report: it has no OHLC/deals/market-cap/order-book per counter.
+# Two tables give us data:
+#   - PARTICIPATION GAINERS & LOSERS: company name + closing price + % moves
+#     (one row per counter that moved that day). No ticker, no volume.
+#   - MOVERS: only the day's TOP MOVERS, each row with explicit ticker +
+#     close price + volume + turnover + %YTD.
+# Missing fields are left as None (never guessed).
 # Format of a mover row, e.g.:
 #     CRDB 2,580 815,675 2.11 Bln 68.63%
 #     (ticker  price  volume  turnover  %YTD)
+# Format of a participation row, e.g.:
+#     CRDB Bank Plc 2580 -1.53% -1.53% +68.63%
+#     (company name  price  %delta  MTD%  YTD%)
 # --------------------------------------------------------------------------
 
 ALPHA_MONTHS_ABBR = {
@@ -75,12 +82,86 @@ ALPHA_MOVER_RE = re.compile(
 
 TURNOVER_MULT = {"Mln": 1e6, "Bln": 1e9, "Tln": 1e12}
 
+# Company name -> ticker for the PARTICIPATION table (which lists names,
+# not tickers). Matched after normalizing whitespace/case/punctuation.
+ALPHA_COMPANY_TICKERS = {
+    "Dar es Salaam Stock Exchange Plc": "DSE",
+    "Mwalimu Commercial Bank Plc": "MCB",
+    "TOL Gases Limited": "TOL",
+    "Mufindi Community Bank Ltd": "MUCOBA",
+    "National Media Group Ltd": "NMG",
+    "Tanga Cement Plc": "TCCL",
+    "Vodacom Tanzania Plc": "VODA",
+    "East African Breweries Ltd": "EABL",
+    "NMB Bank Plc": "NMB",
+    "Tanzania Breweries Limited": "TBL",
+    "Tanzania Portland Cement Plc": "TPCC",
+    "Swissport Tanzania Plc": "SWIS",
+    "CRDB Bank Plc": "CRDB",
+    "National Investment Company Ltd": "NICO",
+    "Mkombozi Commercial Bank Plc": "MKCB",
+    "Precision Air Services Plc": "PAL",
+    "DCB Commercial Bank Plc": "DCB",
+    "Maendeleo Bank Plc": "MBP",
+    "Uchumi Supermarket Ltd": "USL",
+    "Tanzania Cigarette Company Plc": "TCC",
+    "Kenya Commercial Bank Ltd": "KCB",
+    "Jubilee Holdings Ltd": "JHL",
+    "AFRIPRISE": "AFRIPRISE",
+}
+
+# A participation row: company name + price + one or more % columns to EOL.
+ALPHA_PARTICIPATION_RE = re.compile(
+    r"^(.+?)\s+([\d,]+)\s+((?:[+-]?[\d.]+%\s*)+)$"
+)
+
+
+def _alpha_norm(name):
+    return re.sub(r"[^a-z0-9]+", "", name.lower())
+
+
+# Company name (normalized) -> ticker. The lookup uses normalized keys so
+# whitespace/case differences between reports and the map never matter.
+ALPHA_COMPANY_LOOKUP = {_alpha_norm(name): sym for name, sym in ALPHA_COMPANY_TICKERS.items()}
+
+
+def _alpha_ticker_for(name):
+    """Resolve a participation row's company name to a ticker. Exact match
+    first; pdf.js occasionally glues unrelated labels (e.g. a pie-chart
+    legend) onto the front of a row, so fall back to the longest matching
+    suffix — the company name always sits immediately before the price."""
+    norm = _alpha_norm(name)
+    ticker = ALPHA_COMPANY_LOOKUP.get(norm)
+    if ticker:
+        return ticker
+    best, best_len = None, 0
+    for key, sym in ALPHA_COMPANY_LOOKUP.items():
+        if len(key) > best_len and norm.endswith(key):
+            best, best_len = sym, len(key)
+    return best
+
+
+def _alpha_section(raw_text, start_marker, *end_markers):
+    """Returns the slice of raw_text from start_marker to the first of
+    end_markers (or the end of the text if none appear). None if the start
+    marker is absent."""
+    start = raw_text.find(start_marker)
+    if start == -1:
+        return None
+    end = -1
+    for marker in end_markers:
+        found = raw_text.find(marker, start)
+        if found != -1:
+            end = found
+            break
+    return raw_text[start:] if end == -1 else raw_text[start:end]
+
 
 def parse_alpha_report(raw_text: str):
     """
     Parses Alpha Capital's daily market summary. Returns (rows, report_date)
     in the same schema as parse_report, with only the fields the report
-    actually carries populated. Returns ([], None) if no movers are found.
+    actually carries populated. Returns ([], None) if nothing is found.
     """
     report_date = None
     dm = ALPHA_DATE_RE.search(raw_text)
@@ -93,36 +174,57 @@ def parse_alpha_report(raw_text: str):
         if month:
             report_date = datetime(year, month, day).date()
 
-    # Only scan the "MOVERS" section so other blocks (ETFs, fixed income,
-    # indices) can't be misread as movers.
-    start = raw_text.find("MOVERS")
-    if start == -1:
-        return [], None
-    end_marker = raw_text.find("MARKET INDICES", start)
-    section = raw_text[start:] if end_marker == -1 else raw_text[start:end_marker]
+    rows_by_symbol = {}
 
-    rows = []
-    seen = set()
-    for m in ALPHA_MOVER_RE.finditer(section):
-        symbol = m.group(1)
-        if symbol in seen:
-            continue
-        seen.add(symbol)
-        rows.append({
-            "symbol": symbol,
-            "suspended": False,
-            "open": None,
-            "close": _to_num(m.group(2)),
-            "high": None,
-            "low": None,
-            "turnover_tzs": float(m.group(4)) * TURNOVER_MULT.get(m.group(5), 1),
-            "deals": None,
-            "volume": _to_num(m.group(3)),
-            "market_cap_bln_tzs": None,
-            "bids": None,
-            "offers": None,
-        })
-    return rows, report_date
+    # PARTICIPATION GAINERS & LOSERS: closing price for every counter that
+    # moved that day (no ticker in this table, so resolve via the name map).
+    participation = _alpha_section(
+        raw_text, "PARTICIPATION", "ETF Name", "ETF", "MOVERS", "MARKET INDICES"
+    )
+    if participation:
+        for line in participation.splitlines():
+            m = ALPHA_PARTICIPATION_RE.match(line.strip())
+            if not m:
+                continue
+            ticker = _alpha_ticker_for(m.group(1))
+            if not ticker:
+                continue
+            rows_by_symbol[ticker] = {
+                "symbol": ticker,
+                "suspended": False,
+                "open": None,
+                "close": _to_num(m.group(2)),
+                "high": None,
+                "low": None,
+                "turnover_tzs": None,
+                "deals": None,
+                "volume": None,
+                "market_cap_bln_tzs": None,
+                "bids": None,
+                "offers": None,
+            }
+
+    # MOVERS: richer rows (adds volume + turnover). Overwrite the matching
+    # participation rows so movers keep their fuller data.
+    movers = _alpha_section(raw_text, "MOVERS", "MARKET INDICES")
+    if movers:
+        for m in ALPHA_MOVER_RE.finditer(movers):
+            symbol = m.group(1)
+            rows_by_symbol[symbol] = {
+                "symbol": symbol,
+                "suspended": False,
+                "open": None,
+                "close": _to_num(m.group(2)),
+                "high": None,
+                "low": None,
+                "turnover_tzs": float(m.group(4)) * TURNOVER_MULT.get(m.group(5), 1),
+                "deals": None,
+                "volume": _to_num(m.group(3)),
+                "market_cap_bln_tzs": None,
+                "bids": None,
+                "offers": None,
+            }
+    return list(rows_by_symbol.values()), report_date
 
 
 def parse_report(raw_text: str):

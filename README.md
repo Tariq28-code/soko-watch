@@ -84,8 +84,10 @@ server-side pipeline then produces the authoritative data.
   format `sample_report.txt` uses, and the only one the full analysis
   (order-book pressure, liquidity) can run on.
 - **Alpha Capital's daily market summary** (broker format) — partial
-  data: it lists only the day's **top movers**, each with ticker,
-  close price, volume, and turnover. Open/high/low, deals, and
+  data: the **PARTICIPATION GAINERS & LOSERS** table gives each counter
+  that moved a closing price, and the **MOVERS** table adds volume and
+  turnover for the day's top movers (a built-in company-name → ticker
+  map turns the names into symbols). Open/high/low, deals, and
   bids/offers are unknown for this format, so those counters get a
   price-only update and order-book/liquidity signals stay muted.
 
