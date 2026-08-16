@@ -196,6 +196,17 @@
   }
   .card:hover{ border-color:var(--acc, var(--watch)); transform:translateY(-2px); box-shadow:var(--shadow-hi); }
   .card-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+  .card-id{ display:flex; align-items:center; gap:11px; }
+  .logo{
+    width:32px; height:32px; object-fit:contain; border-radius:7px;
+    background:var(--surface); border:1px solid var(--line); padding:3px; flex:none;
+  }
+  .logo.mono{
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px;
+    color:var(--acc, var(--text)); background:var(--surface-hi);
+    border:1px solid var(--acc, var(--line)); padding:0;
+  }
   .symbol{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; color:var(--acc, var(--text)); }
   .call-badge{
     font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
@@ -352,6 +363,13 @@ const BRAND_COLORS = {
   SWALA:  "#3DC6D4",  // Swala Oil & Gas - petroleum teal
   JATU:   "#A7CA62",  // JATU (agriculture) - farm green
   AFRIPRISE: "#CFA84C", // Afriprise Investment - bronze
+};
+
+// Company logo images. Cards without an entry (or where the image fails to
+// load) fall back to a branded initials monogram in the company colour.
+const COMPANY_LOGOS = {
+  VODA: "https://vodacom.co.tz/assets/apple-touch-icon-1boPaCEx.png",
+  SWIS: "https://www.swissport.com/var/site/storage/images/_aliases/navigation_highlight/9/5/5/3/3559-1-eng-GB/Swissport-Building-Logo.jpg",
 };
 
 function fmtTZS(n){
@@ -1072,6 +1090,13 @@ function renderMeta(){
   document.getElementById('footerDate').textContent = latestReportDate;
 }
 
+function logoFallback(img){
+  const d = document.createElement("div");
+  d.className = "logo mono";
+  d.textContent = (img.getAttribute("alt") || "").slice(0, 2);
+  img.replaceWith(d);
+}
+
 function renderGrid(){
   const grid = document.getElementById('cardGrid');
   const filtered = counters.filter(c => {
@@ -1085,10 +1110,17 @@ function renderGrid(){
   }
   grid.innerHTML = filtered.map(c => {
     const acc = BRAND_COLORS[c.symbol] ? `--acc:${BRAND_COLORS[c.symbol]};` : "";
+    const logoUrl = COMPANY_LOGOS[c.symbol];
+    const initials = (c.symbol || "").slice(0, 2);
     return `
     <div class="card" style="${acc}">
       <div class="card-top">
-        <div class="symbol">${c.symbol}</div>
+        <div class="card-id">
+          ${logoUrl
+            ? `<img class="logo" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(c.symbol)}" loading="lazy" onerror="logoFallback(this)">`
+            : `<div class="logo mono">${escapeHtml(initials)}</div>`}
+          <div class="symbol">${escapeHtml(c.symbol)}</div>
+        </div>
         <div class="call-badge call-${c.call}">${c.call}</div>
       </div>
       <div class="price">${fmtTZS(c.last_close)}<small>last close</small></div>
