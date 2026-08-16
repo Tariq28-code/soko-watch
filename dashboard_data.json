@@ -1,17 +1,17 @@
 {
-  "generated_from_latest_report": "2025-02-18",
+  "generated_from_latest_report": "2026-08-13",
   "counters": [
     {
       "symbol": "AFRIPRISE",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 220.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 625.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 88% of outstanding orders are offers (supply outweighs demand).",
+        "Up 184.1% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -19,13 +19,13 @@
       "symbol": "CRDB",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": 0.5,
-      "last_close": 720.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 2700.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is buyer-heavy \u2014 69% of outstanding orders are bids (demand outweighs supply).",
+        "Up 275.0% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "Last declared dividend: TZS 90 per share."
       ]
     },
@@ -33,13 +33,13 @@
       "symbol": "DCB",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 135.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 420.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 99% of outstanding orders are offers (supply outweighs demand).",
+        "Up 211.1% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -47,13 +47,13 @@
       "symbol": "DSE",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": 0.5,
-      "last_close": 2280.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 6300.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is buyer-heavy \u2014 100% of outstanding orders are bids (demand outweighs supply).",
+        "Up 176.3% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -61,12 +61,12 @@
       "symbol": "EABL",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 3800.0,
-      "last_date": "2025-02-18",
+      "score": 0,
+      "last_close": 5580.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "Reasonably liquid \u2014 traded on 1/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -110,12 +110,12 @@
       "symbol": "KCB",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 890.0,
-      "last_date": "2025-02-18",
+      "score": 0,
+      "last_close": 1970.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
+        "Reasonably liquid \u2014 traded on 1/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -123,13 +123,13 @@
       "symbol": "MBP",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 310.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 1690.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 97% of outstanding orders are offers (supply outweighs demand).",
+        "Up 445.2% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -137,13 +137,13 @@
       "symbol": "MCB",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 310.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 440.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 97% of outstanding orders are offers (supply outweighs demand).",
+        "Up 41.9% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -151,13 +151,13 @@
       "symbol": "MKCB",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 600.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 3790.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 99% of outstanding orders are offers (supply outweighs demand).",
+        "Up 531.7% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -179,13 +179,13 @@
       "symbol": "NICO",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": 0.5,
-      "last_close": 640.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 3640.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is buyer-heavy \u2014 71% of outstanding orders are bids (demand outweighs supply).",
+        "Up 468.8% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -193,13 +193,13 @@
       "symbol": "NMB",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 5700.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 17650.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 92% of outstanding orders are offers (supply outweighs demand).",
+        "Up 209.6% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -220,13 +220,13 @@
       "symbol": "PAL",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 400.0,
-      "last_date": "2025-02-18",
+      "score": -1,
+      "last_close": 340.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "Down 15.0% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -247,13 +247,13 @@
       "symbol": "SWIS",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": 0.5,
-      "last_close": 1000.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 2570.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is buyer-heavy \u2014 94% of outstanding orders are bids (demand outweighs supply).",
+        "Up 157.0% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -261,13 +261,13 @@
       "symbol": "TBL",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 10900.0,
-      "last_date": "2025-02-18",
+      "score": -1,
+      "last_close": 9950.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "Down 8.7% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -289,12 +289,13 @@
       "symbol": "TCCL",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": 0,
-      "last_close": 1900.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 3900.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "Up 105.3% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -302,13 +303,12 @@
       "symbol": "TOL",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": 0.0,
-      "last_close": 670.0,
-      "last_date": "2025-02-18",
+      "score": 0,
+      "last_close": 1460.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Thinly traded \u2014 only active on 0/1 of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.",
-        "Order book is buyer-heavy \u2014 100% of outstanding orders are bids (demand outweighs supply).",
+        "Reasonably liquid \u2014 traded on 1/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -356,13 +356,13 @@
       "symbol": "VODA",
       "call": "WATCH",
       "confidence": "low (limited history)",
-      "score": -0.5,
-      "last_close": 770.0,
-      "last_date": "2025-02-18",
+      "score": 1,
+      "last_close": 1010.0,
+      "last_date": "2026-08-13",
       "facts": [
         "Not enough trading history yet for a reliable trend read.",
-        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
-        "Order book is seller-heavy \u2014 100% of outstanding orders are offers (supply outweighs demand).",
+        "Up 31.2% over its last 2 traded sessions.",
+        "Reasonably liquid \u2014 traded on 2/2 of the last recorded sessions.",
         "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
       ]
     },
@@ -396,6 +396,21 @@
         "market_cap_bln_tzs": 32.13,
         "bids": 8188.0,
         "offers": 62076.0
+      },
+      {
+        "symbol": "AFRIPRISE",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 625.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "CRDB": [
@@ -413,6 +428,21 @@
         "market_cap_bln_tzs": 1880.52,
         "bids": 614913.0,
         "offers": 273618.0
+      },
+      {
+        "symbol": "CRDB",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 2700.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": 807900000.0,
+        "deals": null,
+        "volume": 299605.0,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "DCB": [
@@ -430,6 +460,21 @@
         "market_cap_bln_tzs": 22.0,
         "bids": 362.0,
         "offers": 62128.0
+      },
+      {
+        "symbol": "DCB",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 420.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "DSE": [
@@ -447,6 +492,21 @@
         "market_cap_bln_tzs": 54.32,
         "bids": 645.0,
         "offers": 0.0
+      },
+      {
+        "symbol": "DSE",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 6300.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "EABL": [
@@ -464,6 +524,21 @@
         "market_cap_bln_tzs": 3004.94,
         "bids": 0.0,
         "offers": 0.0
+      },
+      {
+        "symbol": "EABL",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 5580.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "JATU": [
@@ -532,6 +607,21 @@
         "market_cap_bln_tzs": 2643.6,
         "bids": 0.0,
         "offers": 0.0
+      },
+      {
+        "symbol": "KCB",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 1970.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": 184200000.0,
+        "deals": null,
+        "volume": 93744.0,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "MBP": [
@@ -549,6 +639,21 @@
         "market_cap_bln_tzs": 9.36,
         "bids": 180.0,
         "offers": 6815.0
+      },
+      {
+        "symbol": "MBP",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 1690.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "MCB": [
@@ -566,6 +671,21 @@
         "market_cap_bln_tzs": 19.17,
         "bids": 20.0,
         "offers": 640.0
+      },
+      {
+        "symbol": "MCB",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 440.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": 113000000.0,
+        "deals": null,
+        "volume": 255898.0,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "MKCB": [
@@ -583,6 +703,21 @@
         "market_cap_bln_tzs": 14.13,
         "bids": 105.0,
         "offers": 14233.0
+      },
+      {
+        "symbol": "MKCB",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 3790.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "MUCOBA": [
@@ -617,6 +752,21 @@
         "market_cap_bln_tzs": 39.45,
         "bids": 28002.0,
         "offers": 11251.0
+      },
+      {
+        "symbol": "NICO",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 3640.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "NMB": [
@@ -634,6 +784,21 @@
         "market_cap_bln_tzs": 2850.0,
         "bids": 462.0,
         "offers": 5258.0
+      },
+      {
+        "symbol": "NMB",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 17650.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": 2820000000.0,
+        "deals": null,
+        "volume": 159601.0,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "NMG": [
@@ -668,6 +833,21 @@
         "market_cap_bln_tzs": 64.19,
         "bids": 0.0,
         "offers": 100.0
+      },
+      {
+        "symbol": "PAL",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 340.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "SWALA": [
@@ -702,6 +882,21 @@
         "market_cap_bln_tzs": 36.0,
         "bids": 760.0,
         "offers": 45.0
+      },
+      {
+        "symbol": "SWIS",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 2570.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "TBL": [
@@ -719,6 +914,21 @@
         "market_cap_bln_tzs": 3216.11,
         "bids": 0.0,
         "offers": 105454.0
+      },
+      {
+        "symbol": "TBL",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 9950.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "TCC": [
@@ -753,6 +963,21 @@
         "market_cap_bln_tzs": 120.97,
         "bids": 5035.0,
         "offers": 4655.0
+      },
+      {
+        "symbol": "TCCL",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 3900.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "TOL": [
@@ -770,6 +995,21 @@
         "market_cap_bln_tzs": 38.53,
         "bids": 153.0,
         "offers": 0.0
+      },
+      {
+        "symbol": "TOL",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 1460.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": null,
+        "deals": null,
+        "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "TPCC": [
@@ -838,6 +1078,21 @@
         "market_cap_bln_tzs": 1724.8,
         "bids": 0.0,
         "offers": 270494.0
+      },
+      {
+        "symbol": "VODA",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 1010.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": 125300000.0,
+        "deals": null,
+        "volume": 123562.0,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
       }
     ],
     "YETU": [
