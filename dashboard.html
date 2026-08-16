@@ -1163,9 +1163,7 @@ function renderPrices(){
   const tbody = document.getElementById('pricesBody');
   tbody.innerHTML = counters.map(c => {
     const acc = BRAND_COLORS[c.symbol] ? `--acc:${BRAND_COLORS[c.symbol]};` : "";
-    const logo = COMPANY_LOGOS[c.symbol]
-      ? `<img class="logo" src="${escapeHtml(COMPANY_LOGOS[c.symbol])}" alt="${escapeHtml(c.symbol)}" loading="lazy" onerror="logoFallback(this)">`
-      : `<div class="logo mono">${escapeHtml((c.symbol || "").slice(0, 2))}</div>`;
+    const logo = `<img class="logo" src="${escapeHtml(logoFor(c.symbol))}" alt="${escapeHtml(c.symbol)}" loading="lazy" onerror="logoFallback(this)">`;
     const price = c.last_close != null ? fmtTZS(c.last_close) : "—";
     const name = COMPANY_NAMES[c.symbol] || c.symbol;
     return `<tr style="${acc}">
@@ -1185,6 +1183,11 @@ function logoFallback(img){
   img.replaceWith(d);
 }
 
+function logoFor(symbol){
+  const remote = COMPANY_LOGOS[symbol];
+  return remote || ("logos/" + symbol + ".png");
+}
+
 function renderGrid(){
   const grid = document.getElementById('cardGrid');
   const filtered = counters.filter(c => {
@@ -1198,15 +1201,13 @@ function renderGrid(){
   }
   grid.innerHTML = filtered.map(c => {
     const acc = BRAND_COLORS[c.symbol] ? `--acc:${BRAND_COLORS[c.symbol]};` : "";
-    const logoUrl = COMPANY_LOGOS[c.symbol];
+    const logoUrl = logoFor(c.symbol);
     const initials = (c.symbol || "").slice(0, 2);
     return `
     <div class="card" style="${acc}">
       <div class="card-top">
         <div class="card-id">
-          ${logoUrl
-            ? `<img class="logo" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(c.symbol)}" loading="lazy" onerror="logoFallback(this)">`
-            : `<div class="logo mono">${escapeHtml(initials)}</div>`}
+          <img class="logo" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(c.symbol)}" loading="lazy" onerror="logoFallback(this)">
           <div class="symbol">${escapeHtml(c.symbol)}</div>
         </div>
         <div class="call-badge call-${c.call}">${c.call}</div>
