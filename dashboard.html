@@ -26,6 +26,30 @@
     --shadow-hi: 0 12px 28px -12px rgba(15,30,50,.22);
   }
   *{box-sizing:border-box;}
+  .login-gate{
+    position:fixed; inset:0; z-index:90; display:flex; align-items:center; justify-content:center;
+    background:var(--bg); padding:20px;
+  }
+  .login-gate[hidden]{ display:none; }
+  .login-box{
+    width:100%; max-width:340px; background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; box-shadow:var(--shadow-hi); padding:32px 28px;
+  }
+  .login-logo{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:-0.01em; color:var(--text); }
+  .login-box p{ color:var(--text-muted); font-size:13px; margin:8px 0 18px; line-height:1.5; }
+  .login-box input[type=password]{
+    width:100%; background:var(--surface-hi); border:1px solid var(--line); color:var(--text);
+    border-radius:10px; padding:12px 14px; font-size:22px; letter-spacing:.4em; text-align:center;
+    font-family:'JetBrains Mono',monospace; outline:none;
+  }
+  .login-box input[type=password]:focus{ border-color:var(--watch); }
+  .login-box input[type=password]:disabled{ opacity:.4; }
+  .login-remember{ display:flex; align-items:center; gap:8px; margin:14px 2px; color:var(--text-muted); font-size:12.5px; cursor:pointer; user-select:none; }
+  .login-box .filter-btn{ width:100%; margin-top:6px; }
+  .login-err{ color:var(--sell); font-size:12.5px; margin-top:12px; text-align:center; }
+  .login-note{ font-size:11px; color:var(--text-muted); margin-top:16px; text-align:center; line-height:1.4; }
+  .login-shake{ animation:shake .4s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   body{
     margin:0; background:var(--bg); color:var(--text);
     font-family:'Inter',sans-serif;
@@ -294,6 +318,18 @@
 </style>
 </head>
 <body>
+
+<div class="login-gate" id="loginGate" hidden>
+  <div class="login-box" id="loginBox">
+    <div class="login-logo">Soko Watch</div>
+    <p data-i18n="loginTitle">Enter your PIN to open the board.</p>
+    <input type="password" id="loginPin" inputmode="numeric" autocomplete="current-password" maxlength="12" enterkeyhint="go" placeholder="••••••">
+    <label class="login-remember"><input type="checkbox" id="loginRemember"><span data-i18n="loginRemember">Remember me on this device</span></label>
+    <button class="filter-btn active" id="loginBtn" data-i18n="loginBtn">Unlock</button>
+    <div class="login-err" id="loginErr" hidden></div>
+    <div class="login-note" data-i18n="loginNote">This lock keeps the board from casual visitors — it is not a hard security barrier.</div>
+  </div>
+</div>
 
 <div class="ticker-wrap"><div class="ticker" id="tickerTrack"></div></div>
 
@@ -626,6 +662,50 @@ const LS_LANG_KEY = "soko_watch_lang";
 let lang = "en";
 try { lang = localStorage.getItem(LS_LANG_KEY) || "en"; } catch(e){}
 
+// ---- PIN gate (client-side lock; NOT a real security boundary) ----
+// Keeps the board away from casual visitors only. Anyone with the source
+// can read PIN_HASH and bypass it — see the note on the login screen.
+// To change the PIN: compute a new hash and replace PIN_HASH, e.g.
+//   node -e "function p(t){let h=14695981039346656037n;for(const c of t){h^=BigInt(c.charCodeAt(0));h=(h*1099511628211n)&0xffffffffffffffffn;}console.log(h.toString(16).padStart(16,'0'))};p('<your pin>')"
+const PIN_HASH = "ec9d570b1cbeeda8"; // FNV-1a 64-bit hex of the PIN "2580"
+const LS_PIN_FLAG = "soko_pin_unlocked";
+
+function pinHash(text){
+  let h = 14695981039346656037n;
+  for (let i = 0; i < text.length; i++){
+    h ^= BigInt(text.charCodeAt(i));
+    h = (h * 1099511628211n) & 0xffffffffffffffffn;
+  }
+  return h.toString(16).padStart(16, "0");
+}
+function pinAuthed(){
+  return sessionStorage.getItem(LS_PIN_FLAG) === "1" || localStorage.getItem(LS_PIN_FLAG) === "1";
+}
+let gateAttempts = 0;
+async function unlock(){
+  const input = document.getElementById('loginPin');
+  if (!input || !input.value) return;
+  if (pinHash(String(input.value).trim()) === PIN_HASH){
+    if (document.getElementById('loginRemember').checked) localStorage.setItem(LS_PIN_FLAG, "1");
+    else sessionStorage.setItem(LS_PIN_FLAG, "1");
+    document.getElementById('loginGate').hidden = true;
+    input.value = "";
+    return;
+  }
+  gateAttempts++;
+  const err = document.getElementById('loginErr');
+  err.textContent = t("loginErr");
+  err.hidden = false;
+  document.getElementById('loginBox').classList.add('login-shake');
+  setTimeout(() => document.getElementById('loginBox').classList.remove('login-shake'), 500);
+  input.select();
+  if (gateAttempts % 4 === 0){
+    input.disabled = true;
+    await new Promise(r => setTimeout(r, 900));
+    input.disabled = false;
+  }
+}
+
 const LANGS = {
   en: {
     eyebrow: "Soko Watch · Dar es Salaam Stock Exchange",
@@ -640,7 +720,7 @@ const LANGS = {
     call_SUSPENDED: "SUSPENDED",
     call_NO_DATA: "NO DATA",
     pricesBtn: "Prices",
-    historyBtn: "History",
+    historyBtn: "Upload history",
     importReportBtn: "+ Import report",
     importPh: "Paste today's DSE Market Report text here (copy from dse.co.tz or its daily report PDF), then press Parse.\n\nOr upload a .txt / .pdf / image via Choose file… — PDFs are read directly, images are run through OCR. The board re-analyzes right in your browser — nothing leaves this page.",
     parseAdd: "Parse & add to board",
@@ -650,7 +730,7 @@ const LANGS = {
     importNoteHtml: 'Imported locally: <b id="importCount"></b> report(s) — saved in this browser. To publish for everyone, save the same text to <b>reports/&lt;date&gt;.txt</b> and git push.',
     clearImports: "Clear imports",
     pricesTitle: "Current prices",
-    pricesDate: "Last close from the latest report — {d}",
+    pricesDate: "Current market price from the latest report — {d}",
     thCompany: "Company",
     thSymbol: "Symbol",
     thPrice: "Current price",
@@ -663,7 +743,7 @@ const LANGS = {
     uploadsSuffix: "upload(s)",
     datesSuffix: "date(s)",
     latestReport: "Latest report: {d}",
-    cardLastClose: "last close",
+    cardLastClose: "current market price",
     confidence: "Confidence: {c}",
     noCounters: "No counters match.",
     noTimestamp: "no timestamp (imported before tracking started)",
@@ -708,6 +788,11 @@ const LANGS = {
     failNoLines: "No counters parsed — no readable text was extracted{c}.",
     failNoLinesPdf: " (the PDF may be a scanned image with no text layer; try a clear image upload or the .txt route)",
     failFormat: "No counters parsed — {n} lines of text were read but none matched the expected row format:\nSYMBOL open close high low turnover deals volume market_cap bids offers\n(e.g.  CRDB 710 720 730 710 1,042,638,710 303 1,483,268 1,880.52 614,913 273,618)\nIf this is DSE's own report, the PDF/OCR layout likely scrambled the columns — inspect the preview and fix, or copy-paste the report text instead.",
+    loginTitle: "Enter your PIN to open the board.",
+    loginRemember: "Remember me on this device",
+    loginBtn: "Unlock",
+    loginErr: "Wrong PIN — try again.",
+    loginNote: "This lock keeps the board from casual visitors — it is not a hard security barrier.",
   },
   sw: {
     eyebrow: "Soko Watch · Soko la Hisa la Dar es Salaam",
@@ -722,7 +807,7 @@ const LANGS = {
     call_SUSPENDED: "IMESITISHWA",
     call_NO_DATA: "HAKUNA DATA",
     pricesBtn: "Bei",
-    historyBtn: "Historia",
+    historyBtn: "Historia ya kupakia",
     importReportBtn: "+ Ingiza taarifa",
     importPh: "Bandika maandishi ya Taarifa ya Soko la DSE ya leo hapa (nakili kutoka dse.co.tz au PDF ya taarifa ya kila siku), kisha bonyeza Chambua.\n\nAu pakia faili ya .txt / .pdf / picha kupitia Chagua faili… — PDF husomwa moja kwa moja, picha huchakatwa kwa OCR. Bodi huchambua upya kwenye kivinjari chako — hakuna kitu kinachoondoka kwenye ukurasa huu.",
     parseAdd: "Chambua na ongeza kwenye bodi",
@@ -732,7 +817,7 @@ const LANGS = {
     importNoteHtml: 'Imeingizwa ndani: <b id="importCount"></b> taarifa — zimehifadhiwa kwenye kivinjari hiki. Ili kuchapisha kwa wote, hifadhi maandishi kwenye <b>reports/&lt;date&gt;.txt</b> kisha fanya git push.',
     clearImports: "Futa maingizo",
     pricesTitle: "Bei za sasa",
-    pricesDate: "Kufungwa kwa mwisho kutoka taarifa ya karibuni — {d}",
+    pricesDate: "Bei ya sasa ya soko kutoka taarifa ya karibuni — {d}",
     thCompany: "Kampuni",
     thSymbol: "Ishara",
     thPrice: "Bei ya sasa",
@@ -745,7 +830,7 @@ const LANGS = {
     uploadsSuffix: "upakiaji",
     datesSuffix: "tarehe",
     latestReport: "Taarifa ya karibuni: {d}",
-    cardLastClose: "kufungwa kwa mwisho",
+    cardLastClose: "bei ya sasa ya soko",
     confidence: "Kuegemea: {c}",
     noCounters: "Hakuna hisa inayolingana.",
     noTimestamp: "hakuna muda (iliingizwa kabla ya kuanza kufuatilia)",
@@ -790,6 +875,11 @@ const LANGS = {
     failNoLines: "Hakuna hisa zilizochambuliwa — hakuna maandishi yanayosomeka yaliyotolewa{c}.",
     failNoLinesPdf: " (PDF inaweza kuwa picha ya kikaguzi bila maandishi; jaribu kupakia picha wazi au njia ya .txt)",
     failFormat: "Hakuna hisa zilizochambuliwa — mistari {n} ya maandishi imesomwa lakini hakuna iliyolingana na muundo unaotarajiwa:\nSYMBOL wazi kufunga juu chini turnover mikataba volume market_cap bids offers\n(mf.  CRDB 710 720 730 710 1,042,638,710 303 1,483,268 1,880.52 614,913 273,618)\nIkiwa hii ni taarifa halisi ya DSE, mpangilio wa PDF/OCR pengine umechanganya safu — angalia onesho na sahihisha, au nakili na bandika maandishi ya taarifa badala yake.",
+    loginTitle: "Weka PIN yako kufungua bodi.",
+    loginRemember: "Nikumbuke kwenye kifaa hiki",
+    loginBtn: "Fungua",
+    loginErr: "PIN si sahihi — jaribu tena.",
+    loginNote: "Kifungo hiki huficha bodi kwa wageni wa kawaida — si kizuizi kigumu cha usalama.",
   },
 };
 
@@ -1797,6 +1887,8 @@ document.getElementById('clearImports').addEventListener('click', () => {
   renderHistory();
 });
 document.getElementById('langBtn').addEventListener('click', toggleLang);
+document.getElementById('loginBtn').addEventListener('click', unlock);
+document.getElementById('loginPin').addEventListener('keydown', (e) => { if (e.key === "Enter") unlock(); });
 
 // ---- load ----
 async function loadData(){
@@ -1818,6 +1910,7 @@ async function loadData(){
   renderHistory();
 }
 applyLang();
+if (!pinAuthed()) document.getElementById('loginGate').hidden = false;
 loadData();
 </script>
 
