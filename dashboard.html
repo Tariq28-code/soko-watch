@@ -1183,9 +1183,13 @@ function logoFallback(img){
   img.replaceWith(d);
 }
 
+const JPG_SYMBOLS = new Set(["NMB", "TBL", "TPCC"]);
+
 function logoFor(symbol){
   const remote = COMPANY_LOGOS[symbol];
-  return remote || ("logos/" + symbol + ".png");
+  if (remote) return remote;
+  const ext = JPG_SYMBOLS.has(symbol) ? "jpg" : "png";
+  return "logos/" + symbol + "." + ext;
 }
 
 function renderGrid(){
