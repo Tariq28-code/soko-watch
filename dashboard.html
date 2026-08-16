@@ -298,42 +298,43 @@
 <div class="ticker-wrap"><div class="ticker" id="tickerTrack"></div></div>
 
 <header>
-  <div class="eyebrow">Soko Watch · Dar es Salaam Stock Exchange</div>
-  <h1>28 counters. One board.</h1>
-  <p>Trend, momentum, liquidity, and order-book pressure for every DSE-listed counter — with the reasoning shown, not hidden.</p>
+  <div class="eyebrow" data-i18n="eyebrow">Soko Watch · Dar es Salaam Stock Exchange</div>
+  <h1 data-i18n="title">28 counters. One board.</h1>
+  <p data-i18n="subtitle">Trend, momentum, liquidity, and order-book pressure for every DSE-listed counter — with the reasoning shown, not hidden.</p>
 </header>
 
 <div class="meta-row">
   <div class="meta-pill" id="reportDatePill">Loading…</div>
-  <div class="meta-pill">Decision support, not financial advice</div>
+  <div class="meta-pill" data-i18n="decisionPill">Decision support, not financial advice</div>
 </div>
 
 <div class="controls">
-  <input type="text" id="searchBox" placeholder="Search a symbol, e.g. CRDB, NMB…">
+  <input type="text" id="searchBox" data-i18n-ph="searchPh" placeholder="Search a symbol, e.g. CRDB, NMB…">
   <button class="filter-btn active" data-filter="ALL">ALL</button>
-  <button class="filter-btn" data-filter="BUY">BUY</button>
-  <button class="filter-btn" data-filter="HOLD">HOLD</button>
-  <button class="filter-btn" data-filter="WATCH">WATCH</button>
-  <button class="filter-btn" data-filter="SELL">SELL</button>
-  <button class="filter-btn" id="pricesBtn">Prices</button>
-  <button class="filter-btn history-btn" id="historyBtn">History</button>
-  <button class="filter-btn import-btn" id="importBtn">+ Import report</button>
+  <button class="filter-btn" data-filter="BUY" data-i18n="call_BUY">BUY</button>
+  <button class="filter-btn" data-filter="HOLD" data-i18n="call_HOLD">HOLD</button>
+  <button class="filter-btn" data-filter="WATCH" data-i18n="call_WATCH">WATCH</button>
+  <button class="filter-btn" data-filter="SELL" data-i18n="call_SELL">SELL</button>
+  <button class="filter-btn" id="pricesBtn" data-i18n="pricesBtn">Prices</button>
+  <button class="filter-btn history-btn" id="historyBtn" data-i18n="historyBtn">History</button>
+  <button class="filter-btn import-btn" id="importBtn" data-i18n="importReportBtn">+ Import report</button>
+  <button class="filter-btn history-btn" id="langBtn">Kiswahili</button>
 </div>
 
 <div class="import-panel" id="importPanel" hidden>
-  <textarea id="reportText" placeholder="Paste today's DSE Market Report text here (copy from dse.co.tz or its daily report PDF), then press Parse.&#10;&#10;Or upload a .txt / .pdf / image via Choose file… — PDFs are read directly, images are run through OCR. The board re-analyzes right in your browser — nothing leaves this page."></textarea>
+  <textarea id="reportText" data-i18n-ph="importPh" placeholder="Paste today's DSE Market Report text here (copy from dse.co.tz or its daily report PDF), then press Parse.&#10;&#10;Or upload a .txt / .pdf / image via Choose file… — PDFs are read directly, images are run through OCR. The board re-analyzes right in your browser — nothing leaves this page."></textarea>
   <div class="import-actions">
-    <button class="filter-btn" id="parseBtn">Parse &amp; add to board</button>
-    <button class="filter-btn" id="fileBtn">Choose file…</button>
+    <button class="filter-btn" id="parseBtn" data-i18n="parseAdd">Parse &amp; add to board</button>
+    <button class="filter-btn" id="fileBtn" data-i18n="chooseFile">Choose file…</button>
     <input type="file" id="fileInput" accept=".txt,.text,.pdf,image/*" hidden>
-    <label class="import-date"><input type="date" id="reportDateInput"><span>report date (if not auto-detected)</span></label>
-    <button class="filter-btn" id="copyTextBtn">Copy extracted text</button>
+    <label class="import-date"><input type="date" id="reportDateInput"><span data-i18n="reportDate">report date (if not auto-detected)</span></label>
+    <button class="filter-btn" id="copyTextBtn" data-i18n="copyText">Copy extracted text</button>
     <span class="import-status" id="importStatus"></span>
   </div>
   <div class="import-preview" id="importPreview" hidden></div>
-  <div class="import-note" id="importNote" hidden>
+  <div class="import-note" id="importNote" data-i18n-html="importNoteHtml" hidden>
     <span>Imported locally: <b id="importCount"></b> report(s) — saved in this browser. To publish for everyone, save the same text to <b>reports/&lt;date&gt;.txt</b> and git push.</span>
-    <button class="filter-btn" id="clearImports">Clear imports</button>
+    <button class="filter-btn" id="clearImports" data-i18n="clearImports">Clear imports</button>
   </div>
 </div>
 
@@ -341,13 +342,13 @@
 
 <section class="prices" id="pricesSection" hidden>
   <div class="prices-head">
-    <h2>Current prices</h2>
+    <h2 data-i18n="pricesTitle">Current prices</h2>
     <span class="note" id="pricesDate">Last close from the latest report</span>
   </div>
   <div class="prices-wrap">
     <table class="prices-table">
       <thead>
-        <tr><th>Company</th><th>Symbol</th><th>Current price</th><th>Call</th></tr>
+        <tr><th data-i18n="thCompany">Company</th><th data-i18n="thSymbol">Symbol</th><th data-i18n="thPrice">Current price</th><th data-i18n="thCall">Call</th></tr>
       </thead>
       <tbody id="pricesBody"></tbody>
     </table>
@@ -356,20 +357,20 @@
 
 <section class="imports-history" id="importsHistory" hidden>
   <div class="imports-history-head">
-    <h2>Past imports</h2>
-    <span class="imports-history-note">Shows reports pushed to <b>reports/</b> (REPO) plus your browser-only imports (saved in this browser only).</span>
+    <h2 data-i18n="histTitle">Past imports</h2>
+    <span class="imports-history-note" data-i18n-html="histNote">Shows reports pushed to <b>reports/</b> (REPO) plus your browser-only imports (saved in this browser only).</span>
   </div>
   <div class="imports-summary">
     <div class="stat">
-      <div class="stat-label">Total uploads</div>
+      <div class="stat-label" data-i18n="statTotal">Total uploads</div>
       <div class="stat-value" id="statTotal">0</div>
     </div>
     <div class="stat">
-      <div class="stat-label">Reports saved</div>
+      <div class="stat-label" data-i18n="statReports">Reports saved</div>
       <div class="stat-value" id="statReports">0</div>
     </div>
     <div class="stat">
-      <div class="stat-label">Latest upload</div>
+      <div class="stat-label" data-i18n="statLatest">Latest upload</div>
       <div class="stat-value" id="statLatest"><small>—</small></div>
     </div>
   </div>
@@ -380,7 +381,7 @@
   <div class="grid" id="cardGrid"></div>
 </main>
 
-<footer>
+<footer data-i18n-html="footHtml">
   <b>How to read this board:</b> each call (BUY / HOLD / WATCH / SELL) is generated from price trend, recent momentum, how often the counter actually trades, and whether outstanding orders lean toward buyers or sellers — never from a single number. Most DSE counters trade thinly, so a lot of counters honestly land on WATCH until more daily reports have been ingested. This board reflects <b id="footerDate">—</b>'s report only; run the ingest pipeline daily to build real trend history.
 </footer>
 
@@ -444,11 +445,6 @@ const BRAND_COLORS = {
 
 // Company logo images. Cards without an entry (or where the image fails to
 // load) fall back to a branded initials monogram in the company colour.
-const COMPANY_LOGOS = {
-  VODA: "https://vodacom.co.tz/assets/apple-touch-icon-1boPaCEx.png",
-  SWIS: "https://www.swissport.com/var/site/storage/images/_aliases/navigation_highlight/9/5/5/3/3559-1-eng-GB/Swissport-Building-Logo.jpg",
-};
-
 const COMPANY_NAMES = {
   AFRIPRISE: "Afriprise Investment",
   CRDB: "CRDB Bank",
@@ -624,6 +620,254 @@ const COMPANY_DETAILS = {
     listed: "March 2016",
   },
 };
+
+// ---- language toggle (English <-> Kiswahili) ----
+const LS_LANG_KEY = "soko_watch_lang";
+let lang = "en";
+try { lang = localStorage.getItem(LS_LANG_KEY) || "en"; } catch(e){}
+
+const LANGS = {
+  en: {
+    eyebrow: "Soko Watch · Dar es Salaam Stock Exchange",
+    title: "28 counters. One board.",
+    subtitle: "Trend, momentum, liquidity, and order-book pressure for every DSE-listed counter — with the reasoning shown, not hidden.",
+    decisionPill: "Decision support, not financial advice",
+    searchPh: "Search a symbol, e.g. CRDB, NMB…",
+    call_BUY: "BUY",
+    call_HOLD: "HOLD",
+    call_WATCH: "WATCH",
+    call_SELL: "SELL",
+    call_SUSPENDED: "SUSPENDED",
+    call_NO_DATA: "NO DATA",
+    pricesBtn: "Prices",
+    historyBtn: "History",
+    importReportBtn: "+ Import report",
+    importPh: "Paste today's DSE Market Report text here (copy from dse.co.tz or its daily report PDF), then press Parse.\n\nOr upload a .txt / .pdf / image via Choose file… — PDFs are read directly, images are run through OCR. The board re-analyzes right in your browser — nothing leaves this page.",
+    parseAdd: "Parse & add to board",
+    chooseFile: "Choose file…",
+    reportDate: "report date (if not auto-detected)",
+    copyText: "Copy extracted text",
+    importNoteHtml: 'Imported locally: <b id="importCount"></b> report(s) — saved in this browser. To publish for everyone, save the same text to <b>reports/&lt;date&gt;.txt</b> and git push.',
+    clearImports: "Clear imports",
+    pricesTitle: "Current prices",
+    pricesDate: "Last close from the latest report — {d}",
+    thCompany: "Company",
+    thSymbol: "Symbol",
+    thPrice: "Current price",
+    thCall: "Call",
+    histTitle: "Past imports",
+    histNote: "Shows reports pushed to <b>reports/</b> (REPO) plus your browser-only imports (saved in this browser only).",
+    statTotal: "Total uploads",
+    statReports: "Reports saved",
+    statLatest: "Latest upload",
+    uploadsSuffix: "upload(s)",
+    datesSuffix: "date(s)",
+    latestReport: "Latest report: {d}",
+    cardLastClose: "last close",
+    confidence: "Confidence: {c}",
+    noCounters: "No counters match.",
+    noTimestamp: "no timestamp (imported before tracking started)",
+    committedRepo: "committed in reports/ — published for everyone",
+    moreFmt: " +{n} more",
+    counterMeta: "{n} counter(s)",
+    uploaded: "Uploaded:",
+    remove: "Remove",
+    aboutLabel: "What they do",
+    historyLabel: "Company history",
+    listedLabel: "Listed on the DSE",
+    curPriceLabel: "Current price",
+    bestCloseLabel: "Best-ever close",
+    debtLabel: "Debt position",
+    asOf: "as of {d}",
+    noData: "no data",
+    noProfile: "No profile on file yet.",
+    noHistory: "No history on file yet.",
+    debtNone: "Not on file yet",
+    debtNotReported: "Not reported",
+    debtZero: "No debt reported",
+    debtEq: "{n}x equity",
+    notePrices: "Prices are the last recorded close from ingested daily reports, not live quotes. ",
+    noteFund: "Fundamentals (incl. debt) aren't on file for this counter yet — fill fundamentals_template.csv and run load_fundamentals.py to unlock them. ",
+    noteBanks: "Banks' customer deposits are not treated as debt in this dataset.",
+    footHtml: "How to read this board: each call (BUY / HOLD / WATCH / SELL) is generated from price trend, recent momentum, how often the counter actually trades, and whether outstanding orders lean toward buyers or sellers — never from a single number. Most DSE counters trade thinly, so a lot of counters honestly land on WATCH until more daily reports have been ingested. This board reflects <b id=\"footerDate\">—</b>'s report only; run the ingest pipeline daily to build real trend history.",
+    noImportsMsg: "No imports found on this page/device yet. Note: imports are saved per browser origin — if you imported while viewing the page as a local file (file://), those won't appear here on the hosted site. Import on this exact page and it will show.",
+    noDateMsg: "Could not detect a report date — set the date field above, or make sure the text has a DATE: DD-Month-YYYY line.",
+    importOkMsg: "Report for {d} imported — {n} counters analyzed and the board updated. Saved under Past imports below.",
+    alphaNote: " The Alpha Capital format lists only the day's movers (with volume/turnover) plus closing prices for gainers/losers — OHLC, deals, and order-book data aren't in this format, so those signals stay muted.",
+    fewCountersMsg: "Extracted text is in the box above — parsed fewer than the usual 28 counters, so check/fix it and re-parse.",
+    previewMovers: "Lines near the MOVERS section (which did not parse):",
+    previewText: "Extracted text preview (first {a} of {b} lines)",
+    notCopied: "Nothing to copy yet — import or paste a report first.",
+    copied: "Extracted text copied to clipboard — paste it anywhere.",
+    copyFailed: "Could not copy automatically — select the text in the box and press Ctrl+C.",
+    pdfExtract: "Extracting text from PDF…",
+    noSelectable: "No selectable text found — running OCR on the PDF pages…",
+    ocrImage: "Running OCR on image… (first time downloads ~10MB, then 10–30s per image)",
+    importFailed: "Import failed: {e}",
+    failAlpha: "No counters parsed — this looks like Alpha Capital's summary, but neither the MOVERS nor the PARTICIPATION rows were recognized ({n} line(s) found in the MOVERS section, none matching TICKER price volume turnover). The preview shows those lines so you can see the exact layout — or click \"Copy extracted text\" and share it. If this is actually DSE's own report, use its \"EQUITY DAILY PRICES\" text instead.",
+    failNoLines: "No counters parsed — no readable text was extracted{c}.",
+    failNoLinesPdf: " (the PDF may be a scanned image with no text layer; try a clear image upload or the .txt route)",
+    failFormat: "No counters parsed — {n} lines of text were read but none matched the expected row format:\nSYMBOL open close high low turnover deals volume market_cap bids offers\n(e.g.  CRDB 710 720 730 710 1,042,638,710 303 1,483,268 1,880.52 614,913 273,618)\nIf this is DSE's own report, the PDF/OCR layout likely scrambled the columns — inspect the preview and fix, or copy-paste the report text instead.",
+  },
+  sw: {
+    eyebrow: "Soko Watch · Soko la Hisa la Dar es Salaam",
+    title: "Hisa 28. Bodi moja.",
+    subtitle: "Mwenendo, kasi, ukwasi, na shinikizo la daftari la maagizo kwa kila hisa iliyoorodheshwa DSE — huku sababu zikionyeshwa, si zikifichwa.",
+    decisionPill: "Usaidizi wa maamuzi, si ushauri wa kifedha",
+    searchPh: "Tafuta ishara, mf. CRDB, NMB…",
+    call_BUY: "NUNUA",
+    call_HOLD: "SHIKILIA",
+    call_WATCH: "TAZAMA",
+    call_SELL: "UZA",
+    call_SUSPENDED: "IMESITISHWA",
+    call_NO_DATA: "HAKUNA DATA",
+    pricesBtn: "Bei",
+    historyBtn: "Historia",
+    importReportBtn: "+ Ingiza taarifa",
+    importPh: "Bandika maandishi ya Taarifa ya Soko la DSE ya leo hapa (nakili kutoka dse.co.tz au PDF ya taarifa ya kila siku), kisha bonyeza Chambua.\n\nAu pakia faili ya .txt / .pdf / picha kupitia Chagua faili… — PDF husomwa moja kwa moja, picha huchakatwa kwa OCR. Bodi huchambua upya kwenye kivinjari chako — hakuna kitu kinachoondoka kwenye ukurasa huu.",
+    parseAdd: "Chambua na ongeza kwenye bodi",
+    chooseFile: "Chagua faili…",
+    reportDate: "tarehe ya taarifa (ikiwa haijabainika kiotomatiki)",
+    copyText: "Nakili maandishi",
+    importNoteHtml: 'Imeingizwa ndani: <b id="importCount"></b> taarifa — zimehifadhiwa kwenye kivinjari hiki. Ili kuchapisha kwa wote, hifadhi maandishi kwenye <b>reports/&lt;date&gt;.txt</b> kisha fanya git push.',
+    clearImports: "Futa maingizo",
+    pricesTitle: "Bei za sasa",
+    pricesDate: "Kufungwa kwa mwisho kutoka taarifa ya karibuni — {d}",
+    thCompany: "Kampuni",
+    thSymbol: "Ishara",
+    thPrice: "Bei ya sasa",
+    thCall: "Uamuzi",
+    histTitle: "Maingizo yaliyopita",
+    histNote: "Inaonyesha taarifa zilizowekwa kwenye <b>reports/</b> (REPO) pamoja na maingizo yako ya kivinjari hiki (yamehifadhiwa kwenye kivinjari hiki pekee).",
+    statTotal: "Jumla ya upakiaji",
+    statReports: "Taarifa zilizohifadhiwa",
+    statLatest: "Upakiaji wa karibuni",
+    uploadsSuffix: "upakiaji",
+    datesSuffix: "tarehe",
+    latestReport: "Taarifa ya karibuni: {d}",
+    cardLastClose: "kufungwa kwa mwisho",
+    confidence: "Kuegemea: {c}",
+    noCounters: "Hakuna hisa inayolingana.",
+    noTimestamp: "hakuna muda (iliingizwa kabla ya kuanza kufuatilia)",
+    committedRepo: "imewekwa kwenye reports/ — imechapishwa kwa wote",
+    moreFmt: " +{n} zaidi",
+    counterMeta: "hisa {n}",
+    uploaded: "Iliyopakiwa:",
+    remove: "Ondoa",
+    aboutLabel: "Wanachofanya",
+    historyLabel: "Historia ya kampuni",
+    listedLabel: "Iliyoorodheshwa DSE",
+    curPriceLabel: "Bei ya sasa",
+    bestCloseLabel: "Kufungwa bora zaidi",
+    debtLabel: "Hali ya deni",
+    asOf: "kuanzia {d}",
+    noData: "hakuna data",
+    noProfile: "Bado hakuna maelezo.",
+    noHistory: "Bado hakuna historia.",
+    debtNone: "Bado hayapo kwenye kumbukumbu",
+    debtNotReported: "Hayajaripotiwa",
+    debtZero: "Hakuna deni lililoripotiwa",
+    debtEq: "{n}x mtaji",
+    notePrices: "Bei ni kufungwa kwa mwisho kulikorekodiwa kutoka taarifa za kila siku zilizoingizwa, si bei halisi za wakati huo. ",
+    noteFund: "Mambo ya msingi (pamoja na deni) bado hayapo kwenye kumbukumbu kwa hisa hii — jazz fundamentals_template.csv kisha endesha load_fundamentals.py ili kufungua. ",
+    noteBanks: "Amana za wateja wa benki hazichukuliwi kama deni katika mkusanyiko huu wa data.",
+    footHtml: "Jinsi ya kusoma bodi hii: kila uamuzi (NUNUA / SHIKILIA / TAZAMA / UZA) unatokana na mwenendo wa bei, kasi ya hivi karibuni, mara ngapi hisa hiyo inafanyika biashara, na kama maagizo yaliyosalia yameegemea wanunuzi au wauzaji — kamwe si kwa nambari moja. Hisa nyingi za DSE hazifanyi biashara mara nyingi, kwa hiyo hisa nyingi kwa uaminifu hubaki TAZAMA mpaka taarifa zaidi za kila siku ziingizwe. Bodi hii inaonyesha taarifa ya <b id=\"footerDate\">—</b> pekee; endesha mfumo wa kuingiza taarifa kila siku ili kujenga historia halisi ya mwenendo.",
+    noImportsMsg: "Hakuna maingizo yaliyopatikana kwenye ukurasa/kifaa hiki bado. Kumbuka: maingizo yanahifadhiwa kulingana na asili ya kivinjari — ikiwa uliingiza ukiwa unatazama faili la ndani (file://), hayo hayataonekana kwenye tovuti iliyopangishwa. Ingiza kwenye ukurasa huu hasa nayo itaonekana.",
+    noDateMsg: "Tulishindwa kubaini tarehe ya taarifa — weka tarehe kwenye sehemu hapo juu, au hakikisha maandishi yana mstari wa TAREHE: DD-Mwezi-YYYY.",
+    importOkMsg: "Taarifa ya {d} imeingizwa — hisa {n} zimechambuliwa na bodi imesasishwa. Imehifadhiwa chini ya Maingizo yaliyopita.",
+    alphaNote: " Muundo wa Alpha Capital unaorodhesha waendeshaji wa siku (pamoja na volume/turnover) na bei za kufungwa kwa wapanda/washuka — OHLC, mikataba, na data ya daftari la maagizo hayapo kwenye muundo huu, kwa hiyo ishara hizo hubaki kimya.",
+    fewCountersMsg: "Maandishi yaliyotolewa yapo kwenye kisanduku hapo juu — yamechambua chini ya hisa 28 za kawaida, kwa hiyo angalia/sahihisha kisha chambua tena.",
+    previewMovers: "Mistari karibu na sehemu ya MOVERS (ambayo haikuchambuliwa):",
+    previewText: "Onesho la maandishi yaliyotolewa ({a} za kwanza kati ya {b} mistari)",
+    notCopied: "Hakuna cha kunakili bado — ingiza au bandika taarifa kwanza.",
+    copied: "Maandishi yamenakiliwa — bandika popote.",
+    copyFailed: "Imeshindikana kunakili kiotomatiki — chagua maandishi kwenye kisanduku kisha bonyeza Ctrl+C.",
+    pdfExtract: "Inachimbua maandishi kutoka PDF…",
+    noSelectable: "Hakuna maandishi yanayoweza kuchaguliwa — inaendesha OCR kwenye kurasa za PDF…",
+    ocrImage: "Inaendesha OCR kwenye picha… (mara ya kwanza inapakua ~10MB, kisha sekunde 10–30 kwa picha)",
+    importFailed: "Uingizaji umeshindikana: {e}",
+    failAlpha: "Hakuna hisa zilizochambuliwa — hii inaonekana kama muhtasari wa Alpha Capital, lakini hakuna mistari ya MOVERS wala PARTICIPATION iliyotambuliwa ({n} mstari yamepatikana kwenye sehemu ya MOVERS, hakuna iliyolingana na TICKER bei volume turnover). Onesho linaonyesha mistari hiyo ili uone mpangilio halisi — au bonyeza \"Nakili maandishi\" na ushiriki. Ikiwa hii ni taarifa halisi ya DSE, tumia maandishi yake ya \"EQUITY DAILY PRICES\" badala yake.",
+    failNoLines: "Hakuna hisa zilizochambuliwa — hakuna maandishi yanayosomeka yaliyotolewa{c}.",
+    failNoLinesPdf: " (PDF inaweza kuwa picha ya kikaguzi bila maandishi; jaribu kupakia picha wazi au njia ya .txt)",
+    failFormat: "Hakuna hisa zilizochambuliwa — mistari {n} ya maandishi imesomwa lakini hakuna iliyolingana na muundo unaotarajiwa:\nSYMBOL wazi kufunga juu chini turnover mikataba volume market_cap bids offers\n(mf.  CRDB 710 720 730 710 1,042,638,710 303 1,483,268 1,880.52 614,913 273,618)\nIkiwa hii ni taarifa halisi ya DSE, mpangilio wa PDF/OCR pengine umechanganya safu — angalia onesho na sahihisha, au nakili na bandika maandishi ya taarifa badala yake.",
+  },
+};
+
+function t(key, vars){
+  const row = (LANGS[lang] && LANGS[lang][key]) || LANGS.en[key];
+  let s = row === undefined ? key : row;
+  if (vars) for (const k of Object.keys(vars)) s = s.split("{" + k + "}").join(vars[k]);
+  return s;
+}
+
+function callLabel(call){
+  return t("call_" + call);
+}
+
+function confLabel(conf){
+  if (lang !== "sw") return conf;
+  if (conf === "low (limited history)") return "chini (historia ndogo)";
+  if (conf === "moderate") return "wastani";
+  return conf;
+}
+
+// Templates from analysis.py ported; em/en dashes are normalised to ~ first.
+const FACT_TRANSLATIONS = [
+  [/^No fundamentals on file yet for this company ~ add them via load_fundamentals\.py from its latest annual report\.$/, "Hakuna mambo ya msingi kwenye kumbukumbu kwa kampuni hii bado ~ ziongeze kupitia load_fundamentals.py kutoka taarifa yake ya mwaka ya karibuni."],
+  [/^Reported a net loss for (.+?) \(net margin (.+?)%\)\.$/, "Iliripoti hasara halisi kwa {1} (kiwango cha faida {2}%)."],
+  [/^Thin net margin for (.+?) \((.+?)%\) ~ profitable, but not by much\.$/, "Kiwango kidogo cha faida kwa {1} ({2}%) ~ yenye faida, lakini si kubwa."],
+  [/^Net margin of (.+?)% for (.+?)\.$/, "Kiwango cha faida cha {1}% kwa {2}."],
+  [/^Highly leveraged ~ debt is (.+?)x equity as of (.+?)\. Debt-funded growth carries more downside if earnings soften\.$/, "Madeni makubwa ~ deni ni {1}x mtaji kufikia {2}. Ukuaji wa deni una hatari zaidi kama mapato yatapungua."],
+  [/^Moderately leveraged ~ debt is (.+?)x equity as of (.+?)\.$/, "Madeni ya wastani ~ deni ni {1}x mtaji kufikia {2}."],
+  [/^Low leverage ~ debt is only (.+?)x equity as of (.+?)\.$/, "Madeni kidogo ~ deni ni {1}x mtaji tu kufikia {2}."],
+  [/^Debt makes up (.+?)% of total assets as of (.+?)\.$/, "Deni linaleta {1}% ya jumla ya mali kufikia {2}."],
+  [/^Last declared dividend: TZS (.+?) per share\.$/, "Mgawanyo wa mwisho uliotangazwa: TZS {1} kwa hisa."],
+  [/^Fundamentals on file for (.+?), but key figures \(revenue, net income, debt, or equity\) are still blank ~ fill in load_fundamentals\.py's CSV to unlock this\.$/, "Mambo ya msingi yapo kwa {1}, lakini takwimu muhimu (mapato, faida halisi, deni, au mtaji) bado tupu ~ jazz CSV ya load_fundamentals.py ili kufungua."],
+  [/^Trading in this counter is currently suspended\.$/, "Biashara ya hisa hii imesitishwa kwa sasa."],
+  [/^Short-term price trend is rising \((.+?) vs (.+?) longer average\)\.$/, "Mwenendo wa bei wa muda mfupi unapanda ({1} dhidi ya wastani wa {2})."],
+  [/^Short-term price trend is falling \((.+?) vs (.+?) longer average\)\.$/, "Mwenendo wa bei wa muda mfupi unashuka ({1} dhidi ya wastani wa {2})."],
+  [/^Price has been flat relative to its recent average\.$/, "Bei imebaki tuli ikilinganishwa na wastani wake wa karibuni."],
+  [/^Not enough trading history yet for a reliable trend read\.$/, "Bado hakuna historia ya kutosha ya biashara kwa mwenendo wa kuaminika."],
+  [/^Up (.+?)% over its last (.+?) traded sessions\.$/, "Imepanda {1}% katika vikao {2} vya mwisho vya biashara."],
+  [/^Down (.+?)% over its last (.+?) traded sessions\.$/, "Imeshuka {1}% katika vikao {2} vya mwisho vya biashara."],
+  [/^Roughly flat \((.+?)%\) over its last (.+?) traded sessions\.$/, "Takribani tuli ({1}%) katika vikao {2} vya mwisho vya biashara."],
+  [/^Thinly traded ~ only active on (.+?)\/(.+?) of the last recorded sessions\. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly\.$/, "Inafanya biashara kidogo ~ ilifanya kazi vikao {1}/{2} tu kati ya vikao vya mwisho vilivyorekodiwa. Chukua tahadhari na ishara yoyote hapa; unaweza kupata ugumu kununua au kuuza kwa bei nzuri haraka."],
+  [/^Reasonably liquid ~ traded on (.+?)\/(.+?) of the last recorded sessions\.$/, "Ukwasi mzuri ~ ilifanya biashara vikao {1}/{2} kati ya vikao vya mwisho vilivyorekodiwa."],
+  [/^Order book is buyer-heavy ~ (.+?)% of outstanding orders are bids \(demand outweighs supply\)\.$/, "Daftari la maagizo linaegemea wanunuzi ~ {1}% ya maagizo yaliyosalia ni zabuni (mahitaji yazidi usambazaji)."],
+  [/^Order book is seller-heavy ~ (.+?)% of outstanding orders are offers \(supply outweighs demand\)\.$/, "Daftari la maagizo linaegemea wauzaji ~ {1}% ya maagizo yaliyosalia ni ofa (usambazaji unazidi mahitaji)."],
+];
+
+function translateFact(fact){
+  if (lang !== "sw") return fact;
+  const norm = fact.replace(/[\u2014\u2013]/g, "~");
+  for (const [re, tmpl] of FACT_TRANSLATIONS){
+    const m = norm.match(re);
+    if (m){
+      let out = tmpl;
+      for (let i = 1; i < m.length; i++) out = out.split("{" + i + "}").join(m[i]);
+      return out.replace(/~/g, "\u2014");
+    }
+  }
+  return fact;
+}
+
+function applyLang(){
+  try { localStorage.setItem(LS_LANG_KEY, lang); } catch(e){}
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = lang === "en" ? "Kiswahili" : "English";
+  renderMeta();
+  renderGrid();
+  renderPrices();
+  renderHistory();
+}
+
+function toggleLang(){
+  lang = lang === "en" ? "sw" : "en";
+  applyLang();
+}
 
 function fmtTZS(n){
   return "TZS " + n.toLocaleString(undefined, {maximumFractionDigits:0});
@@ -1110,10 +1354,10 @@ function showPreview(text, kind){
   let lines, heading;
   if (movers && movers.length){
     lines = movers.slice(0, 16);
-    heading = "Lines near the MOVERS section (which did not parse):";
+    heading = t("previewMovers");
   } else {
     lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length);
-    heading = "Extracted text preview (first 12 of " + lines.length + " lines)";
+    heading = t("previewText", {a: 12, b: lines.length});
     lines = lines.slice(0, 12);
   }
   pre.innerHTML = "<b>" + heading + "</b>" + escapeHtml(lines.join("\n"));
@@ -1125,16 +1369,12 @@ function describeFailure(text, kind){
   const upper = (text || "").toUpperCase();
   if (upper.includes("ALPHA CAPITAL") || upper.includes("DAILY MARKET REPORT")){
     const movers = moversLines(text);
-    return "No counters parsed \u2014 this looks like Alpha Capital's summary, but neither the MOVERS nor the PARTICIPATION rows were recognized (" +
-      (movers ? movers.length : 0) + " line(s) found in the MOVERS section, none matching TICKER price volume turnover). " +
-      "The preview shows those lines so you can see the exact layout \u2014 or click \u201cCopy extracted text\u201d and share it. " +
-      "If this is actually DSE's own report, use its \u201cEQUITY DAILY PRICES\u201d text instead.";
+    return t("failAlpha", {n: movers ? movers.length : 0});
   }
   if (!lines.length){
-    return "No counters parsed \u2014 no readable text was extracted" +
-      (kind === "pdf" ? " (the PDF may be a scanned image with no text layer; try a clear image upload or the .txt route)" : "") + ".";
+    return t("failNoLines", {c: kind === "pdf" ? t("failNoLinesPdf") : ""});
   }
-  return "No counters parsed \u2014 " + lines.length + " lines of text were read but none matched the expected row format:\nSYMBOL open close high low turnover deals volume market_cap bids offers\n(e.g.  CRDB 710 720 730 710 1,042,638,710 303 1,483,268 1,880.52 614,913 273,618)\nIf this is DSE's own report, the PDF/OCR layout likely scrambled the columns \u2014 inspect the preview and fix, or copy-paste the report text instead.";
+  return t("failFormat", {n: lines.length});
 }
 
 function showBanner(message, cls){
@@ -1172,8 +1412,8 @@ function renderHistory(){
     return false;
   }
 
-  document.getElementById('statTotal').innerHTML = total + ' <small>upload(s)</small>';
-  document.getElementById('statReports').innerHTML = sorted.length + ' <small>date(s)</small>';
+  document.getElementById('statTotal').innerHTML = total + ' <small>' + t("uploadsSuffix") + '</small>';
+  document.getElementById('statReports').innerHTML = sorted.length + ' <small>' + t("datesSuffix") + '</small>';
   const topLocal = imported[sorted[0]];
   document.getElementById('statLatest').innerHTML = (topLocal && topLocal.importedAt ? new Date(topLocal.importedAt).toLocaleString() : sorted[0]);
 
@@ -1183,18 +1423,18 @@ function renderHistory(){
     const rows = local ? (local.rows || []) : committed[d];
     const src = local ? (local.source || "text") : "repo";
     const when = local
-      ? (local.importedAt ? new Date(local.importedAt).toLocaleString() : "no timestamp (imported before tracking started)")
-      : "committed in reports/ \u2014 published for everyone";
+      ? (local.importedAt ? new Date(local.importedAt).toLocaleString() : t("noTimestamp"))
+      : t("committedRepo");
     const shown = rows.slice(0, 6).map(r => "<b>" + escapeHtml(r.symbol) + "</b> " + (r.close != null ? fmtTZS(r.close) : "\u2014")).join(", ");
-    const more = rows.length > 6 ? " +" + (rows.length - 6) + " more" : "";
+    const more = rows.length > 6 ? t("moreFmt", {n: rows.length - 6}) : "";
     const div = document.createElement('div');
     div.className = "import-item";
     div.innerHTML =
       '<div class="date">' + d + '</div>' +
       '<div class="src ' + src + '">' + src.toUpperCase() + '</div>' +
-      '<div class="meta">' + rows.length + ' counter(s)<br><b>Uploaded:</b> ' + when + '</div>' +
+      '<div class="meta">' + t("counterMeta", {n: rows.length}) + '<br><b>' + t("uploaded") + '</b> ' + when + '</div>' +
       '<div class="counters">' + shown + more + '</div>' +
-      (local ? '<button class="remove" data-date="' + d + '">Remove</button>' : '');
+      (local ? '<button class="remove" data-date="' + d + '">' + t("remove") + '</button>' : '');
     list.appendChild(div);
   }
   list.querySelectorAll('.remove').forEach(btn => {
@@ -1220,7 +1460,7 @@ function handleImport(rows, reportDate, manualDate, rawText, fileKind, src){
   pre.hidden = true;
   const date = manualDate || reportDate;
   if (!date){
-    showBanner("Could not detect a report date \u2014 set the date field above, or make sure the text has a DATE: DD-Month-YYYY line.", "err");
+    showBanner(t("noDateMsg"), "err");
     return;
   }
   const imported = getImported();
@@ -1231,8 +1471,8 @@ function handleImport(rows, reportDate, manualDate, rawText, fileKind, src){
 
   const fullParse = rows.length >= 28 || src === "alpha";
   if (fullParse){
-    let msg = "Report for " + date + " imported \u2014 " + rows.length + " counters analyzed and the board updated. Saved under Past imports below.";
-    if (src === "alpha") msg += " The Alpha Capital format lists only the day's movers (with volume/turnover) plus closing prices for gainers/losers \u2014 OHLC, deals, and order-book data aren't in this format, so those signals stay muted.";
+    let msg = t("importOkMsg", {d: date, n: rows.length});
+    if (src === "alpha") msg += t("alphaNote");
     showBanner(msg, "ok");
     // Clear the upload area for the next report.
     document.getElementById('reportText').value = "";
@@ -1242,7 +1482,7 @@ function handleImport(rows, reportDate, manualDate, rawText, fileKind, src){
     document.getElementById('importStatus').className = "import-status";
   } else {
     // Too few counters: leave the extracted text in the box so it can be checked/fixed and re-parsed.
-    showBanner("Extracted text is in the box above \u2014 parsed fewer than the usual 28 counters, so check/fix it and re-parse.", "ok");
+    showBanner(t("fewCountersMsg"), "ok");
   }
 
   buildDashboard();
@@ -1339,7 +1579,7 @@ function renderTicker(){
 }
 
 function renderMeta(){
-  document.getElementById('reportDatePill').textContent = "Latest report: " + latestReportDate;
+  document.getElementById('reportDatePill').textContent = t("latestReport", {d: latestReportDate});
   document.getElementById('footerDate').textContent = latestReportDate;
 }
 
@@ -1347,33 +1587,17 @@ function renderPrices(){
   const tbody = document.getElementById('pricesBody');
   tbody.innerHTML = counters.map(c => {
     const acc = BRAND_COLORS[c.symbol] ? `--acc:${BRAND_COLORS[c.symbol]};` : "";
-    const logo = `<img class="logo" src="${escapeHtml(logoFor(c.symbol))}" alt="${escapeHtml(c.symbol)}" loading="lazy" onerror="logoFallback(this)">`;
+    const logo = `<div class="logo mono">${escapeHtml(c.symbol.slice(0, 2))}</div>`;
     const price = c.last_close != null ? fmtTZS(c.last_close) : "—";
     const name = COMPANY_NAMES[c.symbol] || c.symbol;
     return `<tr style="${acc}">
       <td><div class="p-id">${logo}<span>${escapeHtml(name)}</span></div></td>
       <td class="sym">${escapeHtml(c.symbol)}</td>
       <td class="cur-price">${price}</td>
-      <td><span class="call-badge call-${c.call}">${c.call}</span></td>
+      <td><span class="call-badge call-${c.call}">${callLabel(c.call)}</span></td>
     </tr>`;
   }).join('');
-  document.getElementById('pricesDate').textContent = "Last close from the latest report \u2014 " + latestReportDate;
-}
-
-function logoFallback(img){
-  const d = document.createElement("div");
-  d.className = "logo mono";
-  d.textContent = (img.getAttribute("alt") || "").slice(0, 2);
-  img.replaceWith(d);
-}
-
-const JPG_SYMBOLS = new Set(["NMB", "TBL", "TPCC"]);
-
-function logoFor(symbol){
-  const remote = COMPANY_LOGOS[symbol];
-  if (remote) return remote;
-  const ext = JPG_SYMBOLS.has(symbol) ? "jpg" : "png";
-  return "logos/" + symbol + "." + ext;
+  document.getElementById('pricesDate').textContent = t("pricesDate", {d: latestReportDate});
 }
 
 function bestClose(symbol){
@@ -1386,13 +1610,13 @@ function bestClose(symbol){
 }
 
 function debtSummary(f){
-  if (!f) return {text: "Not on file yet", note: true};
+  if (!f) return {text: t("debtNone"), note: true};
   const debt = f.total_debt_mln_tzs;
-  if (debt == null) return {text: "Not reported", note: true};
-  if (debt <= 0) return {text: "No debt reported", note: false};
-  let t = "TZS " + fmt0(debt) + " mln";
-  if (f.total_equity_mln_tzs) t += " (" + (debt / f.total_equity_mln_tzs).toFixed(2) + "x equity)";
-  return {text: t, note: false};
+  if (debt == null) return {text: t("debtNotReported"), note: true};
+  if (debt <= 0) return {text: t("debtZero"), note: false};
+  let txt = "TZS " + fmt0(debt) + " mln";
+  if (f.total_equity_mln_tzs) txt += " (" + (debt / f.total_equity_mln_tzs).toFixed(2) + t("debtEq", {n: ""}) + ")";
+  return {text: txt, note: false};
 }
 
 function openCompanyModal(symbol){
@@ -1403,24 +1627,24 @@ function openCompanyModal(symbol){
   const name = COMPANY_NAMES[symbol] || symbol;
   const best = bestClose(symbol);
   const debt = debtSummary(serverFundamentals[symbol]);
-  const logo = `<img class="logo" src="${escapeHtml(logoFor(symbol))}" alt="${escapeHtml(symbol)}" loading="lazy" onerror="logoFallback(this)">`;
+  const logo = `<div class="logo mono">${escapeHtml(symbol.slice(0, 2))}</div>`;
   document.getElementById('companyModalBody').innerHTML = `
     <div class="modal-head">
       ${logo}
       <div>
         <div class="m-name">${escapeHtml(name)}</div>
-        <div class="m-symbol" style="${acc}">${escapeHtml(symbol)} <span class="call-badge call-${c.call}">${c.call}</span></div>
+        <div class="m-symbol" style="${acc}">${escapeHtml(symbol)} <span class="call-badge call-${c.call}">${callLabel(c.call)}</span></div>
       </div>
     </div>
-    <div class="m-section"><div class="m-label">What they do</div><div class="m-text">${escapeHtml(detail ? detail.about : "No profile on file yet.")}</div></div>
-    <div class="m-section"><div class="m-label">Company history</div><div class="m-text">${escapeHtml(detail ? detail.history : "No history on file yet.")}</div></div>
+    <div class="m-section"><div class="m-label">${t("aboutLabel")}</div><div class="m-text">${escapeHtml(detail ? detail.about : t("noProfile"))}</div></div>
+    <div class="m-section"><div class="m-label">${t("historyLabel")}</div><div class="m-text">${escapeHtml(detail ? detail.history : t("noHistory"))}</div></div>
     <div class="m-grid">
-      <div class="m-stat"><div class="m-label">Listed on the DSE</div><div class="m-value">${escapeHtml(detail ? detail.listed : "—")}</div></div>
-      <div class="m-stat"><div class="m-label">Current price</div><div class="m-value">${c.last_close != null ? fmtTZS(c.last_close) : "—"}<small>as of ${escapeHtml(c.last_date || latestReportDate)}</small></div></div>
-      <div class="m-stat"><div class="m-label">Best-ever close</div><div class="m-value">${best ? fmtTZS(best.close) : "—"}<small>${best ? escapeHtml(best.date) : "no data"}</small></div></div>
-      <div class="m-stat"><div class="m-label">Debt position</div><div class="m-value">${escapeHtml(debt.text)}</div></div>
+      <div class="m-stat"><div class="m-label">${t("listedLabel")}</div><div class="m-value">${escapeHtml(detail ? detail.listed : "—")}</div></div>
+      <div class="m-stat"><div class="m-label">${t("curPriceLabel")}</div><div class="m-value">${c.last_close != null ? fmtTZS(c.last_close) : "—"}<small>${t("asOf", {d: escapeHtml(c.last_date || latestReportDate)})}</small></div></div>
+      <div class="m-stat"><div class="m-label">${t("bestCloseLabel")}</div><div class="m-value">${best ? fmtTZS(best.close) : "—"}<small>${best ? escapeHtml(best.date) : t("noData")}</small></div></div>
+      <div class="m-stat"><div class="m-label">${t("debtLabel")}</div><div class="m-value">${escapeHtml(debt.text)}</div></div>
     </div>
-    <div class="modal-note">Prices are the last recorded close from ingested daily reports, not live quotes. ${debt.note ? "Fundamentals (incl. debt) aren't on file for this counter yet — fill fundamentals_template.csv and run load_fundamentals.py to unlock them. " : ""}Banks' customer deposits are not treated as debt in this dataset.</div>`;
+    <div class="modal-note">${t("notePrices")}${debt.note ? t("noteFund") : ""}${t("noteBanks")}</div>`;
   document.getElementById('companyModal').hidden = false;
 }
 
@@ -1436,26 +1660,24 @@ function renderGrid(){
     return matchesFilter && matchesSearch;
   });
   if(filtered.length === 0){
-    grid.innerHTML = `<div style="color:var(--text-muted); grid-column:1/-1; padding:40px 0; text-align:center;">No counters match.</div>`;
+    grid.innerHTML = `<div style="color:var(--text-muted); grid-column:1/-1; padding:40px 0; text-align:center;">${t("noCounters")}</div>`;
     return;
   }
   grid.innerHTML = filtered.map(c => {
     const acc = BRAND_COLORS[c.symbol] ? `--acc:${BRAND_COLORS[c.symbol]};` : "";
-    const logoUrl = logoFor(c.symbol);
-    const initials = (c.symbol || "").slice(0, 2);
     return `
     <div class="card" data-symbol="${escapeHtml(c.symbol)}" style="${acc}">
       <div class="card-top">
         <div class="card-id">
-          <img class="logo" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(c.symbol)}" loading="lazy" onerror="logoFallback(this)">
+          <div class="logo mono">${escapeHtml(c.symbol.slice(0, 2))}</div>
           <div class="symbol">${escapeHtml(c.symbol)}</div>
         </div>
-        <div class="call-badge call-${c.call}">${c.call}</div>
+        <div class="call-badge call-${c.call}">${callLabel(c.call)}</div>
       </div>
-      <div class="price">${fmtTZS(c.last_close)}<small>last close</small></div>
-      <div class="confidence">Confidence: ${c.confidence}</div>
+      <div class="price">${fmtTZS(c.last_close)}<small>${t("cardLastClose")}</small></div>
+      <div class="confidence">${t("confidence", {c: confLabel(c.confidence)})}</div>
       <ul class="facts">
-        ${c.facts.map(f => `<li>${f}</li>`).join('')}
+        ${c.facts.map(f => `<li>${escapeHtml(translateFact(f))}</li>`).join('')}
       </ul>
     </div>
   `;
@@ -1492,7 +1714,7 @@ document.getElementById('historyBtn').addEventListener('click', () => {
   const sec = document.getElementById('importsHistory');
   const hasContent = renderHistory();
   if (!hasContent){
-    showBanner("No imports found on this page/device yet. Note: imports are saved per browser origin \u2014 if you imported while viewing the page as a local file (file://), those won't appear here on the hosted site. Import on this exact page and it will show.", "err");
+    showBanner(t("noImportsMsg"), "err");
     return;
   }
   sec.hidden = !sec.hidden;
@@ -1517,16 +1739,16 @@ document.getElementById('copyTextBtn').addEventListener('click', async () => {
   const status = document.getElementById('importStatus');
   const text = document.getElementById('reportText').value;
   if (!text.trim()){
-    status.textContent = "Nothing to copy yet \u2014 import or paste a report first.";
+    status.textContent = t("notCopied");
     status.className = "import-status err";
     return;
   }
   try {
     await navigator.clipboard.writeText(text);
-    status.textContent = "Extracted text copied to clipboard \u2014 paste it anywhere.";
+    status.textContent = t("copied");
     status.className = "import-status ok";
   } catch(e){
-    status.textContent = "Could not copy automatically \u2014 select the text in the box and press Ctrl+C.";
+    status.textContent = t("copyFailed");
     status.className = "import-status err";
   }
 });
@@ -1538,16 +1760,16 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
   try {
     let text;
     if (kind === "pdf"){
-      status.textContent = "Extracting text from PDF\u2026";
+      status.textContent = t("pdfExtract");
       status.className = "import-status";
       text = await extractPdfText(file);
       if (!text.trim()){
-        status.textContent = "No selectable text found \u2014 running OCR on the PDF pages\u2026";
+        status.textContent = t("noSelectable");
         status.className = "import-status";
         text = await ocrPdf(file);
       }
     } else if (kind === "image"){
-      status.textContent = "Running OCR on image\u2026 (first time downloads ~10MB, then 10\u201330s per image)";
+      status.textContent = t("ocrImage");
       status.className = "import-status";
       text = await ocrImage(file);
     } else {
@@ -1557,7 +1779,7 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
     const {rows, reportDate, source} = parseSmart(text);
     handleImport(rows, reportDate, document.getElementById('reportDateInput').value, text, kind, source);
   } catch(err){
-    status.textContent = "Import failed: " + err.message;
+    status.textContent = t("importFailed", {e: err.message});
     status.className = "import-status err";
   }
   e.target.value = "";
@@ -1574,6 +1796,7 @@ document.getElementById('clearImports').addEventListener('click', () => {
   updateImportUI();
   renderHistory();
 });
+document.getElementById('langBtn').addEventListener('click', toggleLang);
 
 // ---- load ----
 async function loadData(){
@@ -1594,6 +1817,7 @@ async function loadData(){
   updateImportUI();
   renderHistory();
 }
+applyLang();
 loadData();
 </script>
 
