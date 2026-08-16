@@ -8,28 +8,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #F4F6F9;
-    --surface: #FFFFFF;
-    --surface-hi: #EEF2F7;
-    --line: #E2E8F0;
-    --text: #0F172A;
-    --text-muted: #5A6B7C;
-    --buy: #15803D;
-    --buy-dim: #E6F5EB;
-    --sell: #B91C1C;
-    --sell-dim: #FCECEC;
-    --hold: #B45309;
-    --hold-dim: #FDF1E0;
-    --watch: #475569;
-    --watch-dim: #EFF3F7;
-    --shadow: 0 1px 2px rgba(15,23,42,.06);
-    --shadow-hi: 0 8px 20px -8px rgba(15,23,42,.18);
+    --bg: #0B1220;
+    --surface: #101A2C;
+    --surface-hi: #172440;
+    --line: #223049;
+    --text: #E8EFF7;
+    --text-muted: #8CA0B8;
+    --buy: #34CE7B;
+    --buy-dim: #0F2B1D;
+    --sell: #F56A6C;
+    --sell-dim: #2E191D;
+    --hold: #E8A84C;
+    --hold-dim: #282010;
+    --watch: #8CA0B5;
+    --watch-dim: #1B2839;
+    --shadow: 0 1px 3px rgba(0,0,0,.35);
+    --shadow-hi: 0 12px 28px -12px rgba(0,0,0,.6);
   }
   *{box-sizing:border-box;}
   body{
     margin:0; background:var(--bg); color:var(--text);
     font-family:'Inter',sans-serif;
-    min-height:100vh; color-scheme:light;
+    min-height:100vh; color-scheme:dark;
   }
   /* ---- Ticker ---- */
   .ticker-wrap{
@@ -85,14 +85,14 @@
     flex:1; min-width:180px;
   }
   .controls input::placeholder{ color:var(--text-muted); }
-  .controls input:focus{ outline:none; border-color:var(--watch); box-shadow:0 0 0 3px rgba(71,85,105,.12); }
+  .controls input:focus{ outline:none; border-color:var(--watch); box-shadow:0 0 0 3px rgba(140,160,181,.18); }
   .filter-btn{
     background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
     padding:10px 16px; border-radius:9px; font-family:'JetBrains Mono',monospace;
     font-size:12px; letter-spacing:.04em; cursor:pointer; transition:.15s; box-shadow:var(--shadow);
   }
   .filter-btn:hover{ border-color:var(--watch); color:var(--text); }
-  .filter-btn.active{ background:var(--text); color:#fff; border-color:var(--text); }
+  .filter-btn.active{ background:var(--text); color:var(--bg); border-color:var(--text); }
   .import-btn{ border-color:var(--buy); color:var(--buy); }
   .import-btn:hover{ background:var(--buy-dim); border-color:var(--buy); color:var(--buy); }
   .history-btn{ border-color:var(--watch); color:var(--watch); }
@@ -121,7 +121,7 @@
   .import-actions input[type=date]{
     background:var(--surface); border:1px solid var(--line); color:var(--text);
     border-radius:8px; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:12px;
-    color-scheme:light;
+    color-scheme:dark;
   }
   .import-actions .import-date{
     display:flex; align-items:center; gap:8px; color:var(--text-muted);
@@ -324,34 +324,34 @@ const MIN_POINTS_FOR_TREND = 5;
 // Accent colour per counter, matched to each company's primary brand colour.
 // Tweak any hex to adjust the card's top border + symbol colour.
 const BRAND_COLORS = {
-  CRDB:   "#129B4C",  // CRDB Bank - green
-  NMB:    "#D4002B",  // NMB Bank - red
-  VODA:   "#E60000",  // Vodacom - Vodafone red
-  KCB:    "#C98A0D",  // KCB Group - gold
-  EABL:   "#A8860B",  // East African Breweries - dark gold
-  JHL:    "#0056A8",  // Jubilee Holdings - blue
-  KA:     "#1D5E9B",  // Kenya Airways - blue
-  DCB:    "#0267B0",  // DCB Commercial Bank - blue
-  DSE:    "#0A4B7E",  // Dar es Salaam Stock Exchange - deep blue
-  MBP:    "#0B86C9",  // Maendeleo Bank - sky blue
-  MCB:    "#8E2A3B",  // Mkombozi Commercial Bank - maroon
-  MKCB:   "#006B54",  // Mwalimu Commercial Bank - teal green
-  MUCOBA: "#0D9488",  // MUCOBA Bank - teal
-  NICO:   "#2E5F8A",  // National Insurance - blue
-  NMG:    "#C0392B",  // Nation Media Group - crimson
-  PAL:    "#00979D",  // Precision Air - teal
-  SWIS:   "#E2001A",  // Swissport - red
-  TBL:    "#B01F24",  // Tanzania Breweries - red
-  TCC:    "#9E2B45",  // Tanzania Cigarette - burgundy
-  TCCL:   "#D50000",  // Tanga Cement (Simba) - red
-  TPCC:   "#E87722",  // Tanzania Portland Cement - orange
-  TOL:    "#35719E",  // TOL Gases - steel blue
-  TTP:    "#477A19",  // TATEPA (tea) - green
-  USL:    "#D9001B",  // Uchumi Supermarkets - red
-  YETU:   "#6D31A8",  // Yetu Microfinance - purple
-  SWALA:  "#007D8A",  // Swala Oil & Gas - petroleum teal
-  JATU:   "#5B7A1E",  // JATU (agriculture) - farm green
-  AFRIPRISE: "#8A6D1A", // Afriprise Investment - bronze
+  CRDB:   "#35CE7F",  // CRDB Bank - green
+  NMB:    "#F04A5E",  // NMB Bank - red
+  VODA:   "#FF4D4D",  // Vodacom - Vodafone red
+  KCB:    "#E8B84B",  // KCB Group - gold
+  EABL:   "#D9B64E",  // East African Breweries - dark gold
+  JHL:    "#4C9BE8",  // Jubilee Holdings - blue
+  KA:     "#5BA0E8",  // Kenya Airways - blue
+  DCB:    "#45A3E8",  // DCB Commercial Bank - blue
+  DSE:    "#5A96E0",  // Dar es Salaam Stock Exchange - deep blue
+  MBP:    "#55B1EA",  // Maendeleo Bank - sky blue
+  MCB:    "#E55A78",  // Mkombozi Commercial Bank - maroon
+  MKCB:   "#35BFA0",  // Mwalimu Commercial Bank - teal green
+  MUCOBA: "#39C8B8",  // MUCOBA Bank - teal
+  NICO:   "#6A9AD0",  // National Insurance - blue
+  NMG:    "#F0735E",  // Nation Media Group - crimson
+  PAL:    "#38C0C4",  // Precision Air - teal
+  SWIS:   "#FF4D5E",  // Swissport - red
+  TBL:    "#E85A60",  // Tanzania Breweries - red
+  TCC:    "#E368A8",  // Tanzania Cigarette - burgundy
+  TCCL:   "#FF5252",  // Tanga Cement (Simba) - red
+  TPCC:   "#F5963D",  // Tanzania Portland Cement - orange
+  TOL:    "#79AEDD",  // TOL Gases - steel blue
+  TTP:    "#87C25F",  // TATEPA (tea) - green
+  USL:    "#FF4D55",  // Uchumi Supermarkets - red
+  YETU:   "#A678D9",  // Yetu Microfinance - purple
+  SWALA:  "#3DC6D4",  // Swala Oil & Gas - petroleum teal
+  JATU:   "#A7CA62",  // JATU (agriculture) - farm green
+  AFRIPRISE: "#CFA84C", // Afriprise Investment - bronze
 };
 
 function fmtTZS(n){
