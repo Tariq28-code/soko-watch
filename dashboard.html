@@ -145,6 +145,28 @@
   .result-banner .close{ float:right; cursor:pointer; opacity:.7; font-family:'JetBrains Mono',monospace; }
   .result-banner .close:hover{ opacity:1; }
 
+  .prices{ max-width:1180px; margin:0 auto; padding:6px 24px 40px; }
+  .prices-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .prices-head h2{ font-family:'Space Grotesk',sans-serif; font-size:18px; margin:0; }
+  .prices-head .note{ font-size:12px; color:var(--text-muted); }
+  .prices-wrap{ overflow-x:auto; border-radius:12px; }
+  .prices-table{
+    width:100%; min-width:560px; border-collapse:collapse;
+    background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow);
+  }
+  .prices-table th{
+    text-align:left; font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); font-weight:600;
+    padding:12px 16px; border-bottom:1px solid var(--line); background:var(--surface-hi);
+  }
+  .prices-table td{ padding:11px 16px; border-bottom:1px solid var(--line); font-size:13.5px; vertical-align:middle; }
+  .prices-table tr:last-child td{ border-bottom:none; }
+  .prices-table tbody tr:hover td{ background:var(--surface-hi); }
+  .p-id{ display:flex; align-items:center; gap:10px; }
+  .p-id .logo{ width:26px; height:26px; padding:2px; border-radius:6px; font-size:11px; }
+  .prices-table .sym{ font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--acc, var(--text)); }
+  .prices-table .cur-price{ font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:600; }
+
   .imports-history{ max-width:1180px; margin:0 auto; padding:0 24px 34px; }
   .imports-history-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
   .imports-history-head h2{ font-family:'Space Grotesk',sans-serif; font-size:18px; margin:0; }
@@ -262,6 +284,7 @@
   <button class="filter-btn" data-filter="HOLD">HOLD</button>
   <button class="filter-btn" data-filter="WATCH">WATCH</button>
   <button class="filter-btn" data-filter="SELL">SELL</button>
+  <button class="filter-btn" id="pricesBtn">Prices</button>
   <button class="filter-btn history-btn" id="historyBtn">History</button>
   <button class="filter-btn import-btn" id="importBtn">+ Import report</button>
 </div>
@@ -284,6 +307,21 @@
 </div>
 
 <div class="result-banner" id="resultBanner" hidden></div>
+
+<section class="prices" id="pricesSection" hidden>
+  <div class="prices-head">
+    <h2>Current prices</h2>
+    <span class="note" id="pricesDate">Last close from the latest report</span>
+  </div>
+  <div class="prices-wrap">
+    <table class="prices-table">
+      <thead>
+        <tr><th>Company</th><th>Symbol</th><th>Current price</th><th>Call</th></tr>
+      </thead>
+      <tbody id="pricesBody"></tbody>
+    </table>
+  </div>
+</section>
 
 <section class="imports-history" id="importsHistory" hidden>
   <div class="imports-history-head">
@@ -370,6 +408,37 @@ const BRAND_COLORS = {
 const COMPANY_LOGOS = {
   VODA: "https://vodacom.co.tz/assets/apple-touch-icon-1boPaCEx.png",
   SWIS: "https://www.swissport.com/var/site/storage/images/_aliases/navigation_highlight/9/5/5/3/3559-1-eng-GB/Swissport-Building-Logo.jpg",
+};
+
+const COMPANY_NAMES = {
+  AFRIPRISE: "Afriprise Investment",
+  CRDB: "CRDB Bank",
+  DCB: "DCB Commercial Bank",
+  DSE: "Dar es Salaam Stock Exchange",
+  EABL: "East African Breweries",
+  JATU: "Jatu Plc",
+  JHL: "Jubilee Holdings",
+  KA: "Kenya Airways",
+  KCB: "KCB Group",
+  MBP: "Maendeleo Bank",
+  MCB: "Mwalimu Commercial Bank",
+  MKCB: "Mkombozi Commercial Bank",
+  MUCOBA: "Mufindi Community Bank",
+  NICO: "National Investment Company",
+  NMB: "NMB Bank",
+  NMG: "National Media Group",
+  PAL: "Precision Air",
+  SWALA: "Swala Oil & Gas",
+  SWIS: "Swissport Tanzania",
+  TBL: "Tanzania Breweries",
+  TCC: "Tanzania Cigarette Company",
+  TCCL: "Tanga Cement",
+  TOL: "TOL Gases",
+  TPCC: "Tanzania Portland Cement",
+  TTP: "Tanzania Tea Packers (TATEPA)",
+  USL: "Uchumi Supermarkets",
+  VODA: "Vodacom Tanzania",
+  YETU: "Yetu Microfinance Bank",
 };
 
 function fmtTZS(n){
@@ -1090,6 +1159,25 @@ function renderMeta(){
   document.getElementById('footerDate').textContent = latestReportDate;
 }
 
+function renderPrices(){
+  const tbody = document.getElementById('pricesBody');
+  tbody.innerHTML = counters.map(c => {
+    const acc = BRAND_COLORS[c.symbol] ? `--acc:${BRAND_COLORS[c.symbol]};` : "";
+    const logo = COMPANY_LOGOS[c.symbol]
+      ? `<img class="logo" src="${escapeHtml(COMPANY_LOGOS[c.symbol])}" alt="${escapeHtml(c.symbol)}" loading="lazy" onerror="logoFallback(this)">`
+      : `<div class="logo mono">${escapeHtml((c.symbol || "").slice(0, 2))}</div>`;
+    const price = c.last_close != null ? fmtTZS(c.last_close) : "—";
+    const name = COMPANY_NAMES[c.symbol] || c.symbol;
+    return `<tr style="${acc}">
+      <td><div class="p-id">${logo}<span>${escapeHtml(name)}</span></div></td>
+      <td class="sym">${escapeHtml(c.symbol)}</td>
+      <td class="cur-price">${price}</td>
+      <td><span class="call-badge call-${c.call}">${c.call}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('pricesDate').textContent = "Last close from the latest report \u2014 " + latestReportDate;
+}
+
 function logoFallback(img){
   const d = document.createElement("div");
   d.className = "logo mono";
@@ -1152,6 +1240,12 @@ document.getElementById('importBtn').addEventListener('click', () => {
   const panel = document.getElementById('importPanel');
   panel.hidden = !panel.hidden;
   if (!panel.hidden) updateImportUI();
+});
+document.getElementById('pricesBtn').addEventListener('click', () => {
+  const sec = document.getElementById('pricesSection');
+  renderPrices();
+  sec.hidden = !sec.hidden;
+  document.getElementById('pricesBtn').classList.toggle('active', !sec.hidden);
 });
 document.getElementById('historyBtn').addEventListener('click', () => {
   const sec = document.getElementById('importsHistory');
