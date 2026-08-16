@@ -8,30 +8,33 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0E1F1B;
-    --surface: #16332B;
-    --surface-hi: #1D3E34;
-    --line: #2A4A3F;
-    --text: #EAF3EE;
-    --text-muted: #8FAEA2;
-    --buy: #C9A227;
-    --buy-dim: #4A3F1A;
-    --sell: #C4573F;
-    --sell-dim: #4A241C;
-    --hold: #4F8F80;
-    --hold-dim: #1E3833;
-    --watch: #7E93A0;
-    --watch-dim: #26343A;
+    --bg: #F4F6F9;
+    --surface: #FFFFFF;
+    --surface-hi: #EEF2F7;
+    --line: #E2E8F0;
+    --text: #0F172A;
+    --text-muted: #5A6B7C;
+    --buy: #15803D;
+    --buy-dim: #E6F5EB;
+    --sell: #B91C1C;
+    --sell-dim: #FCECEC;
+    --hold: #B45309;
+    --hold-dim: #FDF1E0;
+    --watch: #475569;
+    --watch-dim: #EFF3F7;
+    --shadow: 0 1px 2px rgba(15,23,42,.06);
+    --shadow-hi: 0 8px 20px -8px rgba(15,23,42,.18);
   }
   *{box-sizing:border-box;}
   body{
     margin:0; background:var(--bg); color:var(--text);
     font-family:'Inter',sans-serif;
-    min-height:100vh;
+    min-height:100vh; color-scheme:light;
   }
   /* ---- Ticker ---- */
   .ticker-wrap{
     background:var(--surface); border-bottom:1px solid var(--line);
+    box-shadow:var(--shadow);
     overflow:hidden; white-space:nowrap; padding:10px 0;
   }
   .ticker{
@@ -45,49 +48,56 @@
   @keyframes scroll{ 0%{transform:translateX(0);} 100%{transform:translateX(-100%);} }
 
   header{
-    max-width:1180px; margin:0 auto; padding:38px 24px 18px;
+    max-width:1180px; margin:0 auto; padding:44px 24px 18px;
   }
   .eyebrow{
-    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em;
-    text-transform:uppercase; color:var(--hold); margin-bottom:10px;
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--hold); margin-bottom:12px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{
+    content:""; width:22px; height:2px; background:var(--buy); border-radius:2px;
   }
   h1{
     font-family:'Space Grotesk',sans-serif; font-size:38px; margin:0 0 8px;
-    letter-spacing:-0.01em;
+    letter-spacing:-0.015em; color:var(--text);
   }
-  header p{ color:var(--text-muted); max-width:560px; line-height:1.5; margin:0; }
+  header p{ color:var(--text-muted); max-width:600px; line-height:1.55; margin:0; font-size:15px; }
 
   .meta-row{
     max-width:1180px; margin:22px auto 0; padding:0 24px;
-    display:flex; gap:14px; flex-wrap:wrap; align-items:center;
+    display:flex; gap:12px; flex-wrap:wrap; align-items:center;
   }
   .meta-pill{
-    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);
-    border:1px solid var(--line); padding:6px 12px; border-radius:100px;
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted);
+    background:var(--surface); border:1px solid var(--line); padding:7px 13px; border-radius:100px;
+    box-shadow:var(--shadow);
   }
 
   .controls{
-    max-width:1180px; margin:22px auto 0; padding:0 24px;
-    display:flex; gap:10px; flex-wrap:wrap;
+    max-width:1180px; margin:24px auto 0; padding:0 24px;
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
   }
   .controls input{
     background:var(--surface); border:1px solid var(--line); color:var(--text);
-    padding:10px 14px; border-radius:8px; font-family:'Inter',sans-serif; font-size:14px;
+    padding:10px 14px; border-radius:9px; font-family:'Inter',sans-serif; font-size:14px;
+    box-shadow:var(--shadow);
     flex:1; min-width:180px;
   }
   .controls input::placeholder{ color:var(--text-muted); }
+  .controls input:focus{ outline:none; border-color:var(--watch); box-shadow:0 0 0 3px rgba(71,85,105,.12); }
   .filter-btn{
     background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
-    padding:10px 16px; border-radius:8px; font-family:'JetBrains Mono',monospace;
-    font-size:12px; letter-spacing:.05em; cursor:pointer; transition:.15s;
+    padding:10px 16px; border-radius:9px; font-family:'JetBrains Mono',monospace;
+    font-size:12px; letter-spacing:.04em; cursor:pointer; transition:.15s; box-shadow:var(--shadow);
   }
-  .filter-btn:hover{ border-color:var(--hold); color:var(--text); }
-  .filter-btn.active{ background:var(--surface-hi); color:var(--text); border-color:var(--hold); }
+  .filter-btn:hover{ border-color:var(--watch); color:var(--text); }
+  .filter-btn.active{ background:var(--text); color:#fff; border-color:var(--text); }
   .import-btn{ border-color:var(--buy); color:var(--buy); }
   .import-btn:hover{ background:var(--buy-dim); border-color:var(--buy); color:var(--buy); }
-  .history-btn{ border-color:var(--hold); color:var(--hold); }
-  .history-btn:hover{ background:var(--hold-dim); border-color:var(--hold); color:var(--hold); }
-  .history-btn.active{ background:var(--hold-dim); border-color:var(--hold); color:var(--hold); }
+  .history-btn{ border-color:var(--watch); color:var(--watch); }
+  .history-btn:hover{ background:var(--watch-dim); border-color:var(--watch); color:var(--watch); }
+  .history-btn.active{ background:var(--watch-dim); border-color:var(--watch); color:var(--watch); }
 
   .import-panel{
     max-width:1180px; margin:18px auto 0; padding:0 24px;
@@ -111,7 +121,7 @@
   .import-actions input[type=date]{
     background:var(--surface); border:1px solid var(--line); color:var(--text);
     border-radius:8px; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:12px;
-    color-scheme:dark;
+    color-scheme:light;
   }
   .import-actions .import-date{
     display:flex; align-items:center; gap:8px; color:var(--text-muted);
@@ -123,12 +133,12 @@
     color:var(--text-muted); max-height:220px; overflow:auto; white-space:pre-wrap; word-break:break-all;
   }
   .import-preview b{
-    color:var(--sell); font-family:'Inter',sans-serif; font-size:12px; display:block; margin-bottom:6px;
+    color:var(--text-muted); font-family:'Inter',sans-serif; font-size:12px; display:block; margin-bottom:6px;
   }
 
   .result-banner{ max-width:1180px; margin:16px auto 0; padding:0 24px; }
   .result-banner .box{
-    padding:12px 16px; border-radius:8px; font-size:13.5px; line-height:1.5; white-space:pre-line;
+    padding:12px 16px; border-radius:10px; font-size:13.5px; line-height:1.5; white-space:pre-line;
   }
   .result-banner .box.ok{ background:var(--buy-dim); border:1px solid var(--buy); color:var(--buy); }
   .result-banner .box.err{ background:var(--sell-dim); border:1px solid var(--sell); color:var(--sell); }
@@ -144,7 +154,7 @@
   }
   .imports-summary .stat{
     flex:1; min-width:150px; background:var(--surface); border:1px solid var(--line);
-    border-radius:10px; padding:14px 16px;
+    border-radius:10px; padding:14px 16px; box-shadow:var(--shadow);
   }
   .imports-summary .stat .stat-label{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:6px; }
   .imports-summary .stat .stat-value{ font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; color:var(--text); }
@@ -153,6 +163,7 @@
   .import-item{
     background:var(--surface); border:1px solid var(--line); border-radius:10px;
     padding:14px 16px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+    box-shadow:var(--shadow);
   }
   .import-item .date{ font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; min-width:110px; }
   .import-item .src{
@@ -178,12 +189,14 @@
     gap:14px;
   }
   .card{
-    background:var(--surface); border:1px solid var(--line); border-radius:12px;
-    padding:18px; cursor:pointer; transition:.15s; position:relative;
+    background:var(--surface); border:1px solid var(--line);
+    border-top:3px solid var(--acc, var(--watch));
+    border-radius:12px;
+    padding:18px; cursor:pointer; transition:.15s; position:relative; box-shadow:var(--shadow);
   }
-  .card:hover{ border-color:var(--hold); transform:translateY(-1px); }
+  .card:hover{ border-color:var(--acc, var(--watch)); transform:translateY(-2px); box-shadow:var(--shadow-hi); }
   .card-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
-  .symbol{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; }
+  .symbol{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; color:var(--acc, var(--text)); }
   .call-badge{
     font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
     letter-spacing:.06em; padding:4px 9px; border-radius:5px;
@@ -308,6 +321,39 @@ const LS_KEY = "soko_watch_imports";
 const LS_COUNT_KEY = "soko_watch_upload_count";
 const MIN_POINTS_FOR_TREND = 5;
 
+// Accent colour per counter, matched to each company's primary brand colour.
+// Tweak any hex to adjust the card's top border + symbol colour.
+const BRAND_COLORS = {
+  CRDB:   "#129B4C",  // CRDB Bank - green
+  NMB:    "#D4002B",  // NMB Bank - red
+  VODA:   "#E60000",  // Vodacom - Vodafone red
+  KCB:    "#C98A0D",  // KCB Group - gold
+  EABL:   "#A8860B",  // East African Breweries - dark gold
+  JHL:    "#0056A8",  // Jubilee Holdings - blue
+  KA:     "#1D5E9B",  // Kenya Airways - blue
+  DCB:    "#0267B0",  // DCB Commercial Bank - blue
+  DSE:    "#0A4B7E",  // Dar es Salaam Stock Exchange - deep blue
+  MBP:    "#0B86C9",  // Maendeleo Bank - sky blue
+  MCB:    "#8E2A3B",  // Mkombozi Commercial Bank - maroon
+  MKCB:   "#006B54",  // Mwalimu Commercial Bank - teal green
+  MUCOBA: "#0D9488",  // MUCOBA Bank - teal
+  NICO:   "#2E5F8A",  // National Insurance - blue
+  NMG:    "#C0392B",  // Nation Media Group - crimson
+  PAL:    "#00979D",  // Precision Air - teal
+  SWIS:   "#E2001A",  // Swissport - red
+  TBL:    "#B01F24",  // Tanzania Breweries - red
+  TCC:    "#9E2B45",  // Tanzania Cigarette - burgundy
+  TCCL:   "#D50000",  // Tanga Cement (Simba) - red
+  TPCC:   "#E87722",  // Tanzania Portland Cement - orange
+  TOL:    "#35719E",  // TOL Gases - steel blue
+  TTP:    "#477A19",  // TATEPA (tea) - green
+  USL:    "#D9001B",  // Uchumi Supermarkets - red
+  YETU:   "#6D31A8",  // Yetu Microfinance - purple
+  SWALA:  "#007D8A",  // Swala Oil & Gas - petroleum teal
+  JATU:   "#5B7A1E",  // JATU (agriculture) - farm green
+  AFRIPRISE: "#8A6D1A", // Afriprise Investment - bronze
+};
+
 function fmtTZS(n){
   return "TZS " + n.toLocaleString(undefined, {maximumFractionDigits:0});
 }
@@ -363,12 +409,83 @@ function parseReport(rawText){
 }
 
 // ---- Alpha Capital's daily market summary (broker format) ----
-// Only lists the day's TOP MOVERS: ticker + close + volume + turnover.
+// Two tables give us data:
+//   - PARTICIPATION GAINERS & LOSERS: company name + closing price + % moves
+//     (one row per counter that moved that day). No ticker, no volume.
+//   - MOVERS: only the day's TOP MOVERS, each row with explicit ticker +
+//     close price + volume + turnover + %YTD.
 // Missing fields (OHLC, deals, bids/offers, market cap) are left null,
 // never guessed.
 const ALPHA_MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
 const ALPHA_DATE_RE = /(\d{1,2})[-/\s]([A-Za-z]{3})[-/\s](\d{2,4})/;
 const ALPHA_MOVER_RE = /([A-Z]{2,10})\s+([\d,]+)\s+([\d,]+)\s+([\d.]+)\s+(Mln|Bln|Tln)/g;
+
+// Company name -> ticker for the PARTICIPATION table (which lists names,
+// not tickers). Matched after normalizing whitespace/case/punctuation.
+const ALPHA_COMPANY_TICKERS = {
+  "Dar es Salaam Stock Exchange Plc": "DSE",
+  "Mwalimu Commercial Bank Plc": "MCB",
+  "TOL Gases Limited": "TOL",
+  "Mufindi Community Bank Ltd": "MUCOBA",
+  "National Media Group Ltd": "NMG",
+  "Tanga Cement Plc": "TCCL",
+  "Vodacom Tanzania Plc": "VODA",
+  "East African Breweries Ltd": "EABL",
+  "NMB Bank Plc": "NMB",
+  "Tanzania Breweries Limited": "TBL",
+  "Tanzania Portland Cement Plc": "TPCC",
+  "Swissport Tanzania Plc": "SWIS",
+  "CRDB Bank Plc": "CRDB",
+  "National Investment Company Ltd": "NICO",
+  "Mkombozi Commercial Bank Plc": "MKCB",
+  "Precision Air Services Plc": "PAL",
+  "DCB Commercial Bank Plc": "DCB",
+  "Maendeleo Bank Plc": "MBP",
+  "Uchumi Supermarket Ltd": "USL",
+  "Tanzania Cigarette Company Plc": "TCC",
+  "Kenya Commercial Bank Ltd": "KCB",
+  "Jubilee Holdings Ltd": "JHL",
+  "AFRIPRISE": "AFRIPRISE",
+};
+
+function normAlphaName(name){
+  return name.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+const ALPHA_COMPANY_LOOKUP = {};
+for (const name of Object.keys(ALPHA_COMPANY_TICKERS)){
+  ALPHA_COMPANY_LOOKUP[normAlphaName(name)] = ALPHA_COMPANY_TICKERS[name];
+}
+
+// A participation row: company name + price + one or more % columns to EOL.
+const ALPHA_PARTICIPATION_RE = /^(.+?)\s+([\d,]+)\s+([+-]?[\d.]+%\s*)+$/;
+
+function alphaTickerFor(name){
+  const norm = normAlphaName(name);
+  if (ALPHA_COMPANY_LOOKUP[norm]) return ALPHA_COMPANY_LOOKUP[norm];
+  // pdf.js occasionally glues unrelated labels (e.g. a pie-chart legend)
+  // onto the front of a row; the company name always sits right before the
+  // price, so fall back to the longest matching suffix.
+  let best = null, bestLen = 0;
+  for (const key of Object.keys(ALPHA_COMPANY_LOOKUP)){
+    if (key.length > bestLen && norm.endsWith(key)){
+      best = ALPHA_COMPANY_LOOKUP[key];
+      bestLen = key.length;
+    }
+  }
+  return best;
+}
+
+function alphaSection(text, startMarker, endMarkers){
+  const start = text.indexOf(startMarker);
+  if (start === -1) return null;
+  let end = -1;
+  for (const mk of endMarkers){
+    const found = text.indexOf(mk, start);
+    if (found !== -1){ end = found; break; }
+  }
+  return end === -1 ? text.slice(start) : text.slice(start, end);
+}
 
 function alphaTurnover(value, unit){
   const mult = {Mln:1e6, Bln:1e9, Tln:1e12}[unit] || 1;
@@ -387,36 +504,61 @@ function parseAlphaReport(rawText){
       reportDate = year + "-" + String(month).padStart(2,"0") + "-" + String(day).padStart(2,"0");
     }
   }
-  const moversAt = rawText.indexOf("MOVERS");
-  let section = rawText;
-  if (moversAt !== -1){
-    const endAt = rawText.indexOf("MARKET INDICES", moversAt);
-    section = endAt === -1 ? rawText.slice(moversAt) : rawText.slice(moversAt, endAt);
+  const bySymbol = {};
+
+  // PARTICIPATION GAINERS & LOSERS: closing price for every counter that
+  // moved that day (no ticker in this table, so resolve via the name map).
+  const participation = alphaSection(rawText, "PARTICIPATION", ["ETF Name", "ETF", "MOVERS", "MARKET INDICES"]);
+  if (participation){
+    for (const raw of participation.split(/\r?\n/)){
+      const line = raw.trim();
+      if (!line) continue;
+      const m = line.match(ALPHA_PARTICIPATION_RE);
+      if (!m) continue;
+      const ticker = alphaTickerFor(m[1]);
+      if (!ticker) continue;
+      bySymbol[ticker] = {
+        symbol: ticker,
+        suspended: false,
+        open: null,
+        close: toNum(m[2]),
+        high: null,
+        low: null,
+        turnover_tzs: null,
+        deals: null,
+        volume: null,
+        market_cap_bln_tzs: null,
+        bids: null,
+        offers: null,
+      };
+    }
   }
-  const rows = [];
-  const seen = {};
-  let m;
-  ALPHA_MOVER_RE.lastIndex = 0;
-  while ((m = ALPHA_MOVER_RE.exec(section)) !== null){
-    const symbol = m[1];
-    if (seen[symbol]) continue;
-    seen[symbol] = 1;
-    rows.push({
-      symbol: symbol,
-      suspended: false,
-      open: null,
-      close: parseFloat(m[2].replace(/,/g, "")),
-      high: null,
-      low: null,
-      turnover_tzs: alphaTurnover(m[4], m[5]),
-      deals: null,
-      volume: parseFloat(m[3].replace(/,/g, "")),
-      market_cap_bln_tzs: null,
-      bids: null,
-      offers: null,
-    });
+
+  // MOVERS: richer rows (adds volume + turnover). Overwrite the matching
+  // participation rows so movers keep their fuller data.
+  const movers = alphaSection(rawText, "MOVERS", ["MARKET INDICES"]);
+  if (movers){
+    let m;
+    ALPHA_MOVER_RE.lastIndex = 0;
+    while ((m = ALPHA_MOVER_RE.exec(movers)) !== null){
+      const symbol = m[1];
+      bySymbol[symbol] = {
+        symbol: symbol,
+        suspended: false,
+        open: null,
+        close: parseFloat(m[2].replace(/,/g, "")),
+        high: null,
+        low: null,
+        turnover_tzs: alphaTurnover(m[4], m[5]),
+        deals: null,
+        volume: parseFloat(m[3].replace(/,/g, "")),
+        market_cap_bln_tzs: null,
+        bids: null,
+        offers: null,
+      };
+    }
   }
-  return {rows, reportDate, source: "alpha"};
+  return {rows: Object.keys(bySymbol).map(s => bySymbol[s]), reportDate, source: "alpha"};
 }
 
 function parseSmart(text){
@@ -431,6 +573,11 @@ function parseSmart(text){
 function sma(values, n){
   if (values.length < n) return null;
   return values.slice(-n).reduce((a,b) => a+b, 0) / n;
+}
+
+function isTraded(h){
+  if (h.volume && h.volume > 0) return true;
+  return (h.volume == null) && h.close != null;
 }
 
 function fundamentalsFacts(fundamentals){
@@ -491,7 +638,7 @@ function analyzeCounter(symbol, history, fundamentals){
     return {symbol: symbol, call: "NO DATA", facts: [], confidence: "none"};
   }
   const latest = history[history.length - 1];
-  const traded = history.filter(h => h.volume && h.volume > 0);
+  const traded = history.filter(isTraded);
   const closes = traded.map(h => h.close);
 
   const facts = [];
@@ -538,7 +685,7 @@ function analyzeCounter(symbol, history, fundamentals){
   }
 
   const recent = history.slice(-10);
-  const tradeDays = recent.filter(h => h.volume && h.volume > 0).length;
+  const tradeDays = recent.filter(isTraded).length;
   const liquidityRatio = tradeDays / recent.length;
   if (liquidityRatio < 0.3){
     facts.push("Thinly traded \u2014 only active on " + tradeDays + "/" + recent.length + " of the last recorded sessions. Treat any signal here with caution; you may struggle to buy or sell at a fair price quickly.");
@@ -707,7 +854,7 @@ function describeFailure(text, kind){
   const upper = (text || "").toUpperCase();
   if (upper.includes("ALPHA CAPITAL") || upper.includes("DAILY MARKET REPORT")){
     const movers = moversLines(text);
-    return "No counters parsed \u2014 this looks like Alpha Capital's summary, but the MOVERS rows weren't recognized (" +
+    return "No counters parsed \u2014 this looks like Alpha Capital's summary, but neither the MOVERS nor the PARTICIPATION rows were recognized (" +
       (movers ? movers.length : 0) + " line(s) found in the MOVERS section, none matching TICKER price volume turnover). " +
       "The preview shows those lines so you can see the exact layout \u2014 or click \u201cCopy extracted text\u201d and share it. " +
       "If this is actually DSE's own report, use its \u201cEQUITY DAILY PRICES\u201d text instead.";
@@ -814,7 +961,7 @@ function handleImport(rows, reportDate, manualDate, rawText, fileKind, src){
   const fullParse = rows.length >= 28 || src === "alpha";
   if (fullParse){
     let msg = "Report for " + date + " imported \u2014 " + rows.length + " counters analyzed and the board updated. Saved under Past imports below.";
-    if (src === "alpha") msg += " Only the top movers are listed in Alpha Capital's format \u2014 other counters keep their previous data.";
+    if (src === "alpha") msg += " The Alpha Capital format lists only the day's movers (with volume/turnover) plus closing prices for gainers/losers \u2014 OHLC, deals, and order-book data aren't in this format, so those signals stay muted.";
     showBanner(msg, "ok");
     // Clear the upload area for the next report.
     document.getElementById('reportText').value = "";
@@ -936,8 +1083,10 @@ function renderGrid(){
     grid.innerHTML = `<div style="color:var(--text-muted); grid-column:1/-1; padding:40px 0; text-align:center;">No counters match.</div>`;
     return;
   }
-  grid.innerHTML = filtered.map(c => `
-    <div class="card">
+  grid.innerHTML = filtered.map(c => {
+    const acc = BRAND_COLORS[c.symbol] ? `--acc:${BRAND_COLORS[c.symbol]};` : "";
+    return `
+    <div class="card" style="${acc}">
       <div class="card-top">
         <div class="symbol">${c.symbol}</div>
         <div class="call-badge call-${c.call}">${c.call}</div>
@@ -948,7 +1097,8 @@ function renderGrid(){
         ${c.facts.map(f => `<li>${f}</li>`).join('')}
       </ul>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // ---- controls ----
