@@ -356,7 +356,7 @@
 
 <header>
   <div class="eyebrow" data-i18n="eyebrow">Soko Watch · Dar es Salaam Stock Exchange</div>
-  <h1 data-i18n="title">28 counters. One board.</h1>
+  <h1 id="boardTitle" data-i18n="title">One board. 28 counters.</h1>
   <p data-i18n="subtitle">Trend, momentum, liquidity, and order-book pressure for every DSE-listed counter — with the reasoning shown, not hidden.</p>
 </header>
 
@@ -498,6 +498,8 @@ const BRAND_COLORS = {
   SWALA:  "#3DC6D4",  // Swala Oil & Gas - petroleum teal
   JATU:   "#A7CA62",  // JATU (agriculture) - farm green
   AFRIPRISE: "#CFA84C", // Afriprise Investment - bronze
+  "IEACLC-ETF": "#7A5CD8", // iTrust EAC Large Cap ETF - violet
+  "VIS-ETF": "#2F9E8F", // Vertex International Securities ETF - teal
 };
 
 // Company logo images. Cards without an entry (or where the image fails to
@@ -531,6 +533,8 @@ const COMPANY_NAMES = {
   USL: "Uchumi Supermarkets",
   VODA: "Vodacom Tanzania",
   YETU: "Yetu Microfinance Bank",
+  "IEACLC-ETF": "iTrust EAC Large Cap ETF",
+  "VIS-ETF": "Vertex International Securities ETF",
 };
 
 // Short company profiles shown in the click-through panel. `about` = what
@@ -730,7 +734,7 @@ async function unlock(){
 const LANGS = {
   en: {
     eyebrow: "Soko Watch · Dar es Salaam Stock Exchange",
-    title: "28 counters. One board.",
+    title: "One board. {n} counters.",
     subtitle: "Trend, momentum, liquidity, and order-book pressure for every DSE-listed counter — with the reasoning shown, not hidden.",
     decisionPill: "Decision support, not financial advice",
     searchPh: "Search a symbol, e.g. CRDB, NMB…",
@@ -819,7 +823,7 @@ const LANGS = {
   },
   sw: {
     eyebrow: "Soko Watch · Soko la Hisa la Dar es Salaam",
-    title: "Hisa 28. Bodi moja.",
+    title: "Bodi moja. Hisa {n}.",
     subtitle: "Mwenendo, kasi, ukwasi, na shinikizo la daftari la maagizo kwa kila hisa iliyoorodheshwa DSE — huku sababu zikionyeshwa, si zikifichwa.",
     decisionPill: "Usaidizi wa maamuzi, si ushauri wa kifedha",
     searchPh: "Tafuta ishara, mf. CRDB, NMB…",
@@ -992,7 +996,7 @@ function fmt0(n){
 }
 
 // ---- parser.py port: DSE daily report text -> rows ----
-const ROW_RE = /^([A-Z]{2,10})(\*\*)?\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+(\d+)\s+([\d,]+)\s+([\d,.]+)\s+([\d,]+)\s+([\d,]+)\s*$/;
+const ROW_RE = /^([A-Z]{2,10}(?:-[A-Z]{1,6})?)(\*\*)?\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+(\d+)\s+([\d,]+)\s+([\d,.]+)\s+([\d,]+)\s+([\d,]+)\s*$/;
 const DATE_RE = /DATE:\s*(\d{1,2}[-\s][A-Za-z]+[-\s]\d{4})/;
 const MONTHS = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
 
@@ -1090,6 +1094,9 @@ for (const name of Object.keys(ALPHA_COMPANY_TICKERS)){
 // A participation row: company name + price + one or more % columns to EOL.
 const ALPHA_PARTICIPATION_RE = /^(.+?)\s+([\d,]+)\s+([+-]?[\d.]+%\s*)+$/;
 
+// ETF table row (ticker written as two tokens, e.g. "IEACLC ETF").
+const ALPHA_ETF_RE = /^(.+?)\s+([A-Z]{1,12})\s+([A-Z]{1,12})\s+([\d,]+)\s+([\d,]+)\s+([\d.]+)\s+(Mln|Bln|Tln)/;
+
 function alphaTickerFor(name){
   const norm = normAlphaName(name);
   if (ALPHA_COMPANY_LOOKUP[norm]) return ALPHA_COMPANY_LOOKUP[norm];
@@ -1182,6 +1189,32 @@ function parseAlphaReport(rawText){
         turnover_tzs: alphaTurnover(m[4], m[5]),
         deals: null,
         volume: parseFloat(m[3].replace(/,/g, "")),
+        market_cap_bln_tzs: null,
+        bids: null,
+        offers: null,
+      };
+    }
+  }
+
+  // ETF table: separate section listing exchange-traded funds. Alpha writes
+  // their tickers as two tokens ("IEACLC ETF"); we keep the hyphenated form.
+  const etfs = alphaSection(rawText, "ETF Name", ["MOVERS", "MARKET INDICES"]);
+  if (etfs){
+    for (const raw of etfs.split(/\r?\n/)){
+      const line = raw.trim();
+      const m = line.match(ALPHA_ETF_RE);
+      if (!m) continue;
+      const symbol = m[2].toUpperCase() + "-" + m[3].toUpperCase();
+      bySymbol[symbol] = {
+        symbol: symbol,
+        suspended: false,
+        open: null,
+        close: toNum(m[4]),
+        high: null,
+        low: null,
+        turnover_tzs: alphaTurnover(m[6], m[7]),
+        deals: null,
+        volume: toNum(m[5]),
         market_cap_bln_tzs: null,
         bids: null,
         offers: null,
@@ -1696,6 +1729,8 @@ function renderTicker(){
 function renderMeta(){
   document.getElementById('reportDatePill').textContent = t("latestReport", {d: latestReportDate});
   document.getElementById('footerDate').textContent = latestReportDate;
+  const titleEl = document.getElementById('boardTitle');
+  if (titleEl) titleEl.textContent = t("title", {n: counters.length});
 }
 
 function renderPrices(){

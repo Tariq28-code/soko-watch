@@ -71,6 +71,19 @@
       ]
     },
     {
+      "symbol": "IEACLC-ETF",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0,
+      "last_close": 1340.0,
+      "last_date": "2026-08-13",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
       "symbol": "JATU",
       "call": "WATCH",
       "confidence": "low (limited history)",
@@ -353,6 +366,19 @@
       ]
     },
     {
+      "symbol": "VIS-ETF",
+      "call": "WATCH",
+      "confidence": "low (limited history)",
+      "score": 0,
+      "last_close": 330.0,
+      "last_date": "2026-08-13",
+      "facts": [
+        "Not enough trading history yet for a reliable trend read.",
+        "Reasonably liquid \u2014 traded on 1/1 of the last recorded sessions.",
+        "No fundamentals on file yet for this company \u2014 add them via load_fundamentals.py from its latest annual report."
+      ]
+    },
+    {
       "symbol": "VODA",
       "call": "WATCH",
       "confidence": "low (limited history)",
@@ -536,6 +562,23 @@
         "turnover_tzs": null,
         "deals": null,
         "volume": null,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
+      }
+    ],
+    "IEACLC-ETF": [
+      {
+        "symbol": "IEACLC-ETF",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 1340.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": 48390000.0,
+        "deals": null,
+        "volume": 36052.0,
         "market_cap_bln_tzs": null,
         "bids": null,
         "offers": null
@@ -1063,6 +1106,23 @@
         "offers": 0.0
       }
     ],
+    "VIS-ETF": [
+      {
+        "symbol": "VIS-ETF",
+        "date": "2026-08-13",
+        "suspended": 0,
+        "open": null,
+        "close": 330.0,
+        "high": null,
+        "low": null,
+        "turnover_tzs": 10170000.0,
+        "deals": null,
+        "volume": 30670.0,
+        "market_cap_bln_tzs": null,
+        "bids": null,
+        "offers": null
+      }
+    ],
     "VODA": [
       {
         "symbol": "VODA",
@@ -1130,6 +1190,7 @@
     "DCB": null,
     "DSE": null,
     "EABL": null,
+    "IEACLC-ETF": null,
     "JATU": null,
     "JHL": null,
     "KA": null,
@@ -1151,6 +1212,7 @@
     "TPCC": null,
     "TTP": null,
     "USL": null,
+    "VIS-ETF": null,
     "VODA": null,
     "YETU": null
   }

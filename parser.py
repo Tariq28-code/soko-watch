@@ -14,7 +14,7 @@ from datetime import datetime
 # One counter's price line, e.g.:
 # CRDB 710 720 730 710 1,042,638,710 303 1,483,268 1,880.52 614,913 273,618
 ROW_RE = re.compile(
-    r"^([A-Z]{2,10})(\*\*)?\s+"          # symbol, optional ** (suspended)
+    r"^([A-Z]{2,10}(?:-[A-Z]{1,6})?)(\*\*)?\s+" # symbol (+ optional -ETF suffix), optional ** (suspended)
     r"([\d,]+)\s+"                        # open
     r"([\d,]+)\s+"                        # close
     r"([\d,]+)\s+"                        # high
@@ -113,6 +113,14 @@ ALPHA_COMPANY_TICKERS = {
 # A participation row: company name + price + one or more % columns to EOL.
 ALPHA_PARTICIPATION_RE = re.compile(
     r"^(.+?)\s+([\d,]+)\s+((?:[+-]?[\d.]+%\s*)+)$"
+)
+
+# ETF table row (ticker is written as two tokens, e.g. "IEACLC ETF"):
+#     iTrust EAC Large Cap ETF   IEACLC ETF  1340  36,052  48.39 Mln
+#     (name  ticker-part1  ticker-part2  price  volume  turnover val unit)
+ALPHA_ETF_RE = re.compile(
+    r"^(.+?)\s+([A-Z]{1,12})\s+([A-Z]{1,12})\s+"
+    r"([\d,]+)\s+([\d,]+)\s+([\d.]+)\s+(Mln|Bln|Tln)"
 )
 
 
@@ -220,6 +228,31 @@ def parse_alpha_report(raw_text: str):
                 "turnover_tzs": float(m.group(4)) * TURNOVER_MULT.get(m.group(5), 1),
                 "deals": None,
                 "volume": _to_num(m.group(3)),
+                "market_cap_bln_tzs": None,
+                "bids": None,
+                "offers": None,
+            }
+
+    # ETF table: separate section listing exchange-traded funds. Alpha writes
+    # their tickers as two tokens ("IEACLC ETF"); we keep the hyphenated form
+    # ("IEACLC-ETF") so they read as one symbol.
+    etfs = _alpha_section(raw_text, "ETF Name", "MOVERS", "MARKET INDICES")
+    if etfs:
+        for line in etfs.splitlines():
+            m = ALPHA_ETF_RE.match(line.strip())
+            if not m:
+                continue
+            symbol = f"{m.group(2).upper()}-{m.group(3).upper()}"
+            rows_by_symbol[symbol] = {
+                "symbol": symbol,
+                "suspended": False,
+                "open": None,
+                "close": _to_num(m.group(4)),
+                "high": None,
+                "low": None,
+                "turnover_tzs": float(m.group(6)) * TURNOVER_MULT.get(m.group(7), 1),
+                "deals": None,
+                "volume": _to_num(m.group(5)),
                 "market_cap_bln_tzs": None,
                 "bids": None,
                 "offers": None,
