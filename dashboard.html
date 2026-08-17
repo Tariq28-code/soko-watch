@@ -814,6 +814,8 @@ const LANGS = {
     loginBtn: "Unlock",
     loginErr: "Wrong PIN — try again.",
     loginNote: "This lock keeps the board from casual visitors — it is not a hard security barrier.",
+    bestResearch: "researched from public records",
+    bestFromData: "best among ingested reports",
   },
   sw: {
     eyebrow: "Soko Watch · Soko la Hisa la Dar es Salaam",
@@ -901,6 +903,8 @@ const LANGS = {
     loginBtn: "Fungua",
     loginErr: "PIN si sahihi — jaribu tena.",
     loginNote: "Kifungo hiki huficha bodi kwa wageni wa kawaida — si kizuizi kigumu cha usalama.",
+    bestResearch: "kimetafitiwa kutoka rekodi za umma",
+    bestFromData: "bora kati ya taarifa zilizoingizwa",
   },
 };
 
@@ -1711,13 +1715,34 @@ function renderPrices(){
   document.getElementById('pricesDate').textContent = t("pricesDate", {d: latestReportDate});
 }
 
+// Highest closes found in public records (DSE reports, Simply Wall St,
+// broker notes, news), researched July-Aug 2026. These are the best figures
+// that could be verified from open sources — for most they coincide with the
+// counter's all-time peak, but "52-week high"-style sources don't go back to
+// every listing year, so treat big-stock numbers as verified, small-thin ones
+// as best-effort. Symbols without an entry fall back to the best close among
+// the ingested reports (see bestClose below).
+const BEST_CLOSES = {
+  CRDB: { price: 3150, date: "2026 (52-week high)" },
+  NMB:  { price: 17950, date: "2026 (record high)" },
+  TBL:  { price: 11160, date: "2026 (52-week high)" },
+  TCC:  { price: 16660, date: "2026 (52-week high)" },
+  TPCC: { price: 6300, date: "2025\u201326 (52-week high)" },
+  TCCL: { price: 4520, date: "2026 (record high)" },
+  DSE:  { price: 6690, date: "2026 (recent high)" },
+  EABL: { price: 5830, date: "2026 (recent high)" },
+};
+
 function bestClose(symbol){
+  const rec = BEST_CLOSES[symbol];
+  if (rec) return {close: rec.price, date: rec.date, researched: true};
   let best = null;
   for (const h of mergedHistory(symbol, getImported())){
     if (h.close == null) continue;
     if (!best || h.close > best.close) best = h;
   }
-  return best;
+  if (best) return {close: best.close, date: best.date, researched: false};
+  return null;
 }
 
 function debtSummary(f){
@@ -1752,7 +1777,7 @@ function openCompanyModal(symbol){
     <div class="m-grid">
       <div class="m-stat"><div class="m-label">${t("listedLabel")}</div><div class="m-value">${escapeHtml(detail ? detail.listed : "—")}</div></div>
       <div class="m-stat"><div class="m-label">${t("curPriceLabel")}</div><div class="m-value">${c.last_close != null ? fmtTZS(c.last_close) : "—"}<small>${t("asOf", {d: escapeHtml(c.last_date || latestReportDate)})}</small></div></div>
-      <div class="m-stat"><div class="m-label">${t("bestCloseLabel")}</div><div class="m-value">${best ? fmtTZS(best.close) : "—"}<small>${best ? escapeHtml(best.date) : t("noData")}</small></div></div>
+      <div class="m-stat"><div class="m-label">${t("bestCloseLabel")}</div><div class="m-value">${best ? fmtTZS(best.close) : "—"}<small>${best ? escapeHtml(best.date) + " · " + t(best.researched ? "bestResearch" : "bestFromData") : t("noData")}</small></div></div>
       <div class="m-stat"><div class="m-label">${t("debtLabel")}</div><div class="m-value">${escapeHtml(debt.text)}</div></div>
     </div>
     <div class="modal-note">${t("notePrices")}${debt.note ? t("noteFund") : ""}${t("noteBanks")}</div>`;
