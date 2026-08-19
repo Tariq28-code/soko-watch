@@ -144,6 +144,16 @@
   .history-btn:hover{ background:var(--watch-dim); border-color:var(--watch); color:var(--watch); }
   .history-btn.active{ background:var(--watch-dim); border-color:var(--watch); color:var(--watch); }
 
+  .legend{
+    max-width:1180px; margin:18px auto 0; padding:0 24px;
+    display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start;
+  }
+  .legend-item{
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; color:var(--text-muted); line-height:1.35;
+  }
+  .legend-item .call-badge{ flex:none; cursor:default; }
+
   .import-panel{
     max-width:1180px; margin:18px auto 0; padding:0 24px;
   }
@@ -376,6 +386,14 @@
   <button class="filter-btn history-btn" id="historyBtn" data-i18n="historyBtn">History</button>
   <button class="filter-btn import-btn" id="importBtn" data-i18n="importReportBtn">+ Import report</button>
   <button class="filter-btn history-btn" id="langBtn">Kiswahili</button>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="call-badge call-BUY">BUY</span><span data-i18n="legend_BUY">Signals lean positive — the short-term picture favors buying. Not a promise the price will rise.</span></div>
+  <div class="legend-item"><span class="call-badge call-SELL">SELL</span><span data-i18n="legend_SELL">Signals lean negative — the short-term picture favors selling/exiting. Not a promise the price will fall.</span></div>
+  <div class="legend-item"><span class="call-badge call-HOLD">HOLD</span><span data-i18n="legend_HOLD">No strong lean either way — the signals balance out, so the read is "keep what you have".</span></div>
+  <div class="legend-item"><span class="call-badge call-WATCH">WATCH</span><span data-i18n="legend_WATCH">Not enough trading history yet for a reliable read — track it until more reports are ingested.</span></div>
+  <div class="legend-item"><span class="call-badge call-SUSPENDED">SUSPENDED</span><span data-i18n="legend_SUSPENDED">Trading in this counter is currently halted.</span></div>
 </div>
 
 <div class="import-panel" id="importPanel" hidden>
@@ -754,6 +772,11 @@ const LANGS = {
     call_SELL: "SELL",
     call_SUSPENDED: "SUSPENDED",
     call_NO_DATA: "NO DATA",
+    legend_BUY: "Signals lean positive — the short-term picture favors buying. Not a promise the price will rise.",
+    legend_SELL: "Signals lean negative — the short-term picture favors selling/exiting. Not a promise the price will fall.",
+    legend_HOLD: "No strong lean either way — the signals balance out, so the read is \"keep what you have\".",
+    legend_WATCH: "Not enough trading history yet for a reliable read — track it until more reports are ingested.",
+    legend_SUSPENDED: "Trading in this counter is currently halted.",
     pricesBtn: "Prices",
     historyBtn: "Upload history",
     importReportBtn: "+ Import report",
@@ -843,6 +866,11 @@ const LANGS = {
     call_SELL: "UZA",
     call_SUSPENDED: "IMESITISHWA",
     call_NO_DATA: "HAKUNA DATA",
+    legend_BUY: "Ishara zinaelekea chanya — hali ya muda mfupi inapendelea kununua. Sio ahadi kwamba bei itapanda.",
+    legend_SELL: "Ishara zinaelekea hasi — hali ya muda mfupi inapendelea kuuza/kutoka. Sio ahadi kwamba bei itashuka.",
+    legend_HOLD: "Hakuna mwelekeo mkubwa kwa upande wowote — ishara zinasawazana, kwa hiyo usomaji ni \"shikilia ulicho nacho\".",
+    legend_WATCH: "Bado hakuna historia ya kutosha ya biashara kwa usomaji wa kuaminika — fuata hadi taarifa zaidi ziingizwe.",
+    legend_SUSPENDED: "Biashara ya hisa hii imesitishwa kwa sasa.",
     pricesBtn: "Bei",
     historyBtn: "Historia ya kupakia",
     importReportBtn: "+ Ingiza taarifa",
