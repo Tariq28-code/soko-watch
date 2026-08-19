@@ -388,14 +388,6 @@
   <button class="filter-btn history-btn" id="langBtn">Kiswahili</button>
 </div>
 
-<div class="legend">
-  <div class="legend-item"><span class="call-badge call-BUY">BUY</span><span data-i18n="legend_BUY">Signals lean positive — the short-term picture favors buying. Not a promise the price will rise.</span></div>
-  <div class="legend-item"><span class="call-badge call-SELL">SELL</span><span data-i18n="legend_SELL">Signals lean negative — the short-term picture favors selling/exiting. Not a promise the price will fall.</span></div>
-  <div class="legend-item"><span class="call-badge call-HOLD">HOLD</span><span data-i18n="legend_HOLD">No strong lean either way — the signals balance out, so the read is "keep what you have".</span></div>
-  <div class="legend-item"><span class="call-badge call-WATCH">WATCH</span><span data-i18n="legend_WATCH">Not enough trading history yet for a reliable read — track it until more reports are ingested.</span></div>
-  <div class="legend-item"><span class="call-badge call-SUSPENDED">SUSPENDED</span><span data-i18n="legend_SUSPENDED">Trading in this counter is currently halted.</span></div>
-</div>
-
 <div class="import-panel" id="importPanel" hidden>
   <textarea id="reportText" data-i18n-ph="importPh" placeholder="Paste today's DSE Market Report text here (copy from dse.co.tz or its daily report PDF), then press Parse.&#10;&#10;Or upload a .txt / .pdf / image via Choose file… — PDFs are read directly, images are run through OCR. The board re-analyzes right in your browser — nothing leaves this page."></textarea>
   <div class="import-actions">
@@ -459,6 +451,14 @@
 <footer data-i18n-html="footHtml">
   <b>How to read this board:</b> each call (BUY / HOLD / WATCH / SELL) is generated from price trend, recent momentum, how often the counter actually trades, and whether outstanding orders lean toward buyers or sellers — never from a single number. Most DSE counters trade thinly, so a lot of counters honestly land on WATCH until more daily reports have been ingested. This board reflects <b id="footerDate">—</b>'s report only; run the ingest pipeline daily to build real trend history.
 </footer>
+
+<div class="legend">
+  <div class="legend-item"><span class="call-badge call-BUY">BUY</span><span data-i18n="legend_BUY">Signals lean positive — the short-term picture favors buying. Not a promise the price will rise.</span></div>
+  <div class="legend-item"><span class="call-badge call-SELL">SELL</span><span data-i18n="legend_SELL">Signals lean negative — the short-term picture favors selling/exiting. Not a promise the price will fall.</span></div>
+  <div class="legend-item"><span class="call-badge call-HOLD">HOLD</span><span data-i18n="legend_HOLD">No strong lean either way — the signals balance out, so the read is "keep what you have".</span></div>
+  <div class="legend-item"><span class="call-badge call-WATCH">WATCH</span><span data-i18n="legend_WATCH">Not enough trading history yet for a reliable read — track it until more reports are ingested.</span></div>
+  <div class="legend-item"><span class="call-badge call-SUSPENDED">SUSPENDED</span><span data-i18n="legend_SUSPENDED">Trading in this counter is currently halted.</span></div>
+</div>
 
 <div class="modal" id="companyModal" hidden>
   <div class="modal-backdrop" data-close></div>
