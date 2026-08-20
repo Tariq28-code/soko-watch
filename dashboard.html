@@ -295,6 +295,19 @@
   .m-value{ font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:700; }
   .m-value small{ display:block; font-family:'Inter',sans-serif; font-size:11px; color:var(--text-muted); font-weight:400; margin-top:3px; }
   .modal-note{ margin-top:15px; font-size:11.5px; color:var(--text-muted); line-height:1.5; }
+  .mini-change{
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:8px;
+  }
+  .mini-change .change-price{ width:auto; min-width:120px; }
+  .mini-change .change-pct{ width:auto; min-width:80px; }
+  .mini-change .change-pct small,
+  .mini-change .change-price small{ font-size:10px; font-weight:400; }
+  .mini-verdict{
+    font-size:12.5px; line-height:1.5; color:var(--text);
+    background:var(--surface-hi); border:1px solid var(--line);
+    border-radius:9px; padding:10px 13px;
+  }
 
   .imports-history{ max-width:1180px; margin:0 auto; padding:0 24px 34px; }
   .imports-history-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
@@ -831,6 +844,13 @@ const LANGS = {
     changeEmpty: "No counter has at least two report closes yet — import a second report to start the chart.",
     changeUp: "rose",
     changeDown: "fell",
+    changeFlat: "unchanged",
+    modNoPrev: "No earlier report to compare against — the previous suggestion this verdict is based on needs history.",
+    modNoCall: "Previous report gave {call} — no directional call to score.",
+    modRight: "Last report suggested {call} and the price {move} since — the suggestion was correct.",
+    modMiss: "Last report suggested {call} but the price {move} since — that suggestion did not hold.",
+    modNoChange: "Only one report on file yet — no price change to chart.",
+    modNoVerdict: "Can't score the previous suggestion yet.",
     pricesBtn: "Prices",
     historyBtn: "Upload history",
     importReportBtn: "+ Import report",
@@ -930,6 +950,13 @@ const LANGS = {
     changeEmpty: "Hakuna hisa iliyo na kufungwa kwa taarifa mbili bado — ingiza taarifa ya pili kuanza chati.",
     changeUp: "ilipanda",
     changeDown: "ilishuka",
+    changeFlat: "hakuna mabadiliko",
+    modNoPrev: "Hakuna taarifa ya awali ya kulinganisha — pendekezo la mwisho litakalohesabiwa linahitaji historia.",
+    modNoCall: "Taarifa ya mwisho ilitoa {call} — hakuna uamuzi wa mwelekeo wa kuhesabu.",
+    modRight: "Taarifa ya mwisho ilipendekeza {call} na bei {move} tangu wakati huo — pendekezo lilikuwa sahihi.",
+    modMiss: "Taarifa ya mwisho ilipendekeza {call} lakini bei {move} tangu wakati huo — pendekezo hilo halikushika.",
+    modNoChange: "Bado kuna taarifa moja tu — hakuna mabadiliko ya bei ya kuchora.",
+    modNoVerdict: "Bado hatuwezi kuhesabu pendekezo la mwisho.",
     pricesBtn: "Bei",
     historyBtn: "Historia ya kupakia",
     importReportBtn: "+ Ingiza taarifa",
@@ -1848,28 +1875,65 @@ function renderPrices(){
   document.getElementById('pricesDate').textContent = t("pricesDate", {d: latestReportDate});
 }
 
+function changeInfo(symbol){
+  const h = mergedHistory(symbol, getImported()).filter(r => r.close != null);
+  if (h.length < 2) return null;
+  const prev = h[h.length - 2];
+  const latest = h[h.length - 1];
+  if (prev.close == null || latest.close == null || !prev.close) return null;
+  const pct = (latest.close - prev.close) / prev.close * 100;
+  const dir = Math.abs(pct) < 0.0001 ? "flat" : (pct > 0 ? "up" : "down");
+  return {prev, latest, pct, dir};
+}
+
+function previousCall(symbol){
+  const h = mergedHistory(symbol, getImported());
+  if (!h || h.length === 0) return null;
+  if (h.length === 1) return null;
+  return analyzeCounter(symbol, h.slice(0, -1), serverFundamentals[symbol] || null);
+}
+
+function moveWord(dir){
+  if (dir === "up") return t("changeUp");
+  if (dir === "down") return t("changeDown");
+  return t("changeFlat");
+}
+
+function suggestionVerdict(symbol){
+  const info = changeInfo(symbol);
+  if (!info) return null;
+  const prev = previousCall(symbol);
+  if (!prev || !prev.call) return t("modNoPrev");
+  const pc = prev.call;
+  let correct = null;
+  if (pc === "BUY") correct = info.dir === "up";
+  else if (pc === "SELL") correct = info.dir === "down";
+  else if (pc === "HOLD") correct = info.dir === "flat";
+  if (correct === null) return t("modNoCall", {call: callLabel(pc)});
+  const move = moveWord(info.dir);
+  return correct
+    ? t("modRight", {call: callLabel(pc), move})
+    : t("modMiss", {call: callLabel(pc), move});
+}
+
 function renderPriceChange(){
   const bars = document.getElementById('changeBars');
   if (!bars) return;
-  const rows = counters.map(c => {
-    const h = mergedHistory(c.symbol, getImported()).filter(r => r.close != null);
-    if (h.length < 2) return null;
-    return {c, prev: h[h.length - 2], latest: h[h.length - 1]};
-  }).filter(Boolean);
+  const rows = counters.map(c => ({
+    c, info: changeInfo(c.symbol)
+  })).filter(r => r.info);
   if (rows.length === 0){
     bars.innerHTML = '<div class="change-empty">' + escapeHtml(t("changeEmpty")) + '</div>';
     return;
   }
-  const maxAbs = Math.max(1, ...rows.map(r =>
-    Math.abs((r.latest.close - r.prev.close) / r.prev.close) * 100
-  ));
+  const maxAbs = Math.max(1, ...rows.map(r => Math.abs(r.info.pct)));
   const scale = 50 / maxAbs; // half the track per 100% move
   bars.innerHTML = rows.map(r => {
     const acc = BRAND_COLORS[r.c.symbol] ? `--acc:${BRAND_COLORS[r.c.symbol]};` : "";
-    const pct = ((r.latest.close - r.prev.close) / r.prev.close) * 100;
-    const dir = Math.abs(pct) < 0.0001 ? "flat" : (pct > 0 ? "up" : "down");
-    const prev = fmtTZS(r.prev.close);
-    const lat = fmtTZS(r.latest.close);
+    const pct = r.info.pct;
+    const dir = r.info.dir;
+    const prev = fmtTZS(r.info.prev.close);
+    const lat = fmtTZS(r.info.latest.close);
     const w = Math.min(Math.abs(pct) * scale, 50);
     const fill = dir === "flat"
       ? '<div class="change-fill flat"></div>'
@@ -1933,7 +1997,46 @@ function openCompanyModal(symbol){
   const name = COMPANY_NAMES[symbol] || symbol;
   const best = bestClose(symbol);
   const debt = debtSummary(serverFundamentals[symbol]);
+  const info = changeInfo(symbol);
+  const verdict = suggestionVerdict(symbol);
+  const acc = BRAND_COLORS[symbol] ? `--acc:${BRAND_COLORS[symbol]};` : "";
+  const name = COMPANY_NAMES[symbol] || symbol;
+  const best = bestClose(symbol);
   const logo = `<div class="logo mono">${escapeHtml(symbol.slice(0, 2))}</div>`;
+  let changeBlock = "";
+  if (info){
+    const pct = info.pct;
+    const dir = info.dir;
+    const prev = fmtTZS(info.prev.close);
+    const lat = fmtTZS(info.latest.close);
+    const maxAbs = Math.max(1, ...counters.map(cs => {
+      const i = changeInfo(cs.symbol);
+      return i ? Math.abs(i.pct) : 0;
+    }));
+    const scale = 50 / maxAbs;
+    const w = Math.min(Math.abs(pct) * scale, 50);
+    const fill = dir === "flat"
+      ? '<div class="change-fill flat"></div>'
+      : '<div class="change-fill ' + dir + '" style="width:' + w + '%"></div>';
+    const label = (pct > 0 ? "+" : "") + pct.toFixed(2) + "%";
+    const dateTxt = info.prev.date + (info.prev.date !== info.latest.date ? " → " + info.latest.date : "");
+    changeBlock = `
+    <div class="m-section">
+      <div class="m-label">${t("changeTitle")}</div>
+      <div class="mini-change">
+        <div class="change-price"><b>${prev}</b> → <b>${lat}</b><br><small>${dateTxt}</small></div>
+        <div class="change-track"><div class="change-mid"></div>${fill}</div>
+        <div class="change-pct ${dir}">${label}<br><small>${escapeHtml(t(changeMoveKey(dir)))}</small></div>
+      </div>
+      <div class="mini-verdict">${verdict ? escapeHtml(verdict) : escapeHtml(t("modNoVerdict"))}</div>
+    </div>`;
+  } else {
+    changeBlock = `
+    <div class="m-section">
+      <div class="m-label">${t("changeTitle")}</div>
+      <div class="mini-verdict">${escapeHtml(t("modNoChange"))}</div>
+    </div>`;
+  }
   document.getElementById('companyModalBody').innerHTML = `
     <div class="modal-head">
       ${logo}
@@ -1944,6 +2047,7 @@ function openCompanyModal(symbol){
     </div>
     <div class="m-section"><div class="m-label">${t("aboutLabel")}</div><div class="m-text">${escapeHtml(detail ? detail.about : t("noProfile"))}</div></div>
     <div class="m-section"><div class="m-label">${t("historyLabel")}</div><div class="m-text">${escapeHtml(detail ? detail.history : t("noHistory"))}</div></div>
+    ${changeBlock}
     <div class="m-grid">
       <div class="m-stat"><div class="m-label">${t("listedLabel")}</div><div class="m-value">${escapeHtml(detail ? detail.listed : "—")}</div></div>
       <div class="m-stat"><div class="m-label">${t("curPriceLabel")}</div><div class="m-value">${c.last_close != null ? fmtTZS(c.last_close) : "—"}<small>${t("asOf", {d: escapeHtml(c.last_date || latestReportDate)})}</small></div></div>
@@ -1952,6 +2056,10 @@ function openCompanyModal(symbol){
     </div>
     <div class="modal-note">${t("notePrices")}${debt.note ? t("noteFund") : ""}${t("noteBanks")}</div>`;
   document.getElementById('companyModal').hidden = false;
+}
+
+function changeMoveKey(dir){
+  return dir === "flat" ? "changeFlat" : (dir === "up" ? "changeUp" : "changeDown");
 }
 
 function closeCompanyModal(){
