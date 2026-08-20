@@ -1939,7 +1939,7 @@ function renderPriceChange(){
       ? '<div class="change-fill flat"></div>'
       : '<div class="change-fill ' + dir + '" style="width:' + w + '%"></div>';
     const label = (pct > 0 ? "+" : "") + pct.toFixed(2) + "%";
-    const dateTxt = r.prev.date + (r.prev.date !== r.latest.date ? " → " + r.latest.date : "");
+    const dateTxt = r.info.prev.date + (r.info.prev.date !== r.info.latest.date ? " → " + r.info.latest.date : "");
     return '<div class="change-row" style="' + acc + '">' +
       '<div class="change-sym"><div class="logo mono">' + escapeHtml(r.c.symbol.slice(0, 2)) + '</div>' + escapeHtml(r.c.symbol) + '</div>' +
       '<div class="change-price"><b>' + prev + '</b> → <b>' + lat + '</b><br><small>' + dateTxt + '</small></div>' +
@@ -1999,9 +1999,6 @@ function openCompanyModal(symbol){
   const debt = debtSummary(serverFundamentals[symbol]);
   const info = changeInfo(symbol);
   const verdict = suggestionVerdict(symbol);
-  const acc = BRAND_COLORS[symbol] ? `--acc:${BRAND_COLORS[symbol]};` : "";
-  const name = COMPANY_NAMES[symbol] || symbol;
-  const best = bestClose(symbol);
   const logo = `<div class="logo mono">${escapeHtml(symbol.slice(0, 2))}</div>`;
   let changeBlock = "";
   if (info){
