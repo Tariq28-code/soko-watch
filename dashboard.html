@@ -154,6 +154,49 @@
   }
   .legend-item .call-badge{ flex:none; cursor:default; }
 
+  .change-section{
+    max-width:1180px; margin:34px auto 0; padding:0 24px;
+  }
+  .change-section h2{
+    font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700;
+    color:var(--text); margin:0 0 6px;
+  }
+  .change-note{ font-size:12.5px; color:var(--text-muted); line-height:1.55; margin:0 0 18px; max-width:760px; }
+  .change-row{
+    display:flex; align-items:center; gap:12px;
+    padding:7px 0; border-bottom:1px solid var(--line);
+  }
+  .change-sym{
+    width:120px; flex:none; display:flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:var(--text);
+  }
+  .change-sym .logo.mono{ width:26px; height:26px; font-size:11px; }
+  .change-price{
+    width:150px; flex:none; white-space:nowrap;
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted);
+  }
+  .change-price b{ color:var(--text); font-weight:600; }
+  .change-track{
+    flex:1; height:18px; position:relative; overflow:hidden;
+    background:var(--surface-hi); border:1px solid var(--line); border-radius:5px;
+  }
+  .change-mid{ position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--line); }
+  .change-fill{ position:absolute; top:0; bottom:0; }
+  .change-fill.up{ left:50%; background:var(--buy); border-radius:0 4px 4px 0; }
+  .change-fill.down{ right:50%; background:var(--sell); border-radius:4px 0 0 4px; }
+  .change-fill.flat{ left:50%; width:2px; background:var(--watch); }
+  .change-pct{
+    width:90px; flex:none; text-align:right; white-space:nowrap;
+    font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700;
+  }
+  .change-pct.up{ color:var(--buy); }
+  .change-pct.down{ color:var(--sell); }
+  .change-pct.flat{ color:var(--watch); }
+  .change-empty{
+    font-size:12.5px; color:var(--text-muted); line-height:1.5;
+    border-bottom:1px solid var(--line); padding:10px 0;
+  }
+
   .import-panel{
     max-width:1180px; margin:18px auto 0; padding:0 24px;
   }
@@ -447,6 +490,12 @@
 <main>
   <div class="grid" id="cardGrid"></div>
 </main>
+
+<section class="change-section" id="changeSection">
+  <h2 data-i18n="changeTitle">Price change: previous report → latest report</h2>
+  <p class="change-note" data-i18n="changeNote">How far each counter moved between its last two reports (previous close → latest close). Green bars = price rose, red bars = price fell, gray = no change. With only two ingested reports, most counters show just one step; ingest daily reports and this chart builds real history.</p>
+  <div id="changeBars"></div>
+</section>
 
 <footer data-i18n-html="footHtml">
   <b>How to read this board:</b> each call (BUY / HOLD / WATCH / SELL) is generated from price trend, recent momentum, how often the counter actually trades, and whether outstanding orders lean toward buyers or sellers — never from a single number. Most DSE counters trade thinly, so a lot of counters honestly land on WATCH until more daily reports have been ingested. This board reflects <b id="footerDate">—</b>'s report only; run the ingest pipeline daily to build real trend history.
@@ -777,6 +826,11 @@ const LANGS = {
     legend_HOLD: "No strong lean either way — the signals balance out, so the read is \"keep what you have\".",
     legend_WATCH: "Not enough trading history yet for a reliable read — track it until more reports are ingested.",
     legend_SUSPENDED: "Trading in this counter is currently halted.",
+    changeTitle: "Price change: previous report → latest report",
+    changeNote: "How far each counter moved between its last two reports (previous close → latest close). Green bars = price rose, red bars = price fell, gray = no change. With only two ingested reports, most counters show just one step; ingest daily reports and this chart builds real history.",
+    changeEmpty: "No counter has at least two report closes yet — import a second report to start the chart.",
+    changeUp: "rose",
+    changeDown: "fell",
     pricesBtn: "Prices",
     historyBtn: "Upload history",
     importReportBtn: "+ Import report",
@@ -871,6 +925,11 @@ const LANGS = {
     legend_HOLD: "Hakuna mwelekeo mkubwa kwa upande wowote — ishara zinasawazana, kwa hiyo usomaji ni \"shikilia ulicho nacho\".",
     legend_WATCH: "Bado hakuna historia ya kutosha ya biashara kwa usomaji wa kuaminika — fuata hadi taarifa zaidi ziingizwe.",
     legend_SUSPENDED: "Biashara ya hisa hii imesitishwa kwa sasa.",
+    changeTitle: "Mabadiliko ya bei: taarifa ya mwisho → taarifa ya karibuni",
+    changeNote: "Kiasi kilichobadilika kwa kila hisa kati ya taarifa zake mbili za mwisho (kufungwa kwa mwisho → kufungwa kwa karibuni). Baa za kijani = bei ilipanda, baa nyekundu = bei ilishuka, kijivu = hakuna mabadiliko. Ukiwa na taarifa mbili tu, hisa nyingi zinaonekana hatua moja; ingiza taarifa za kila siku ili chati hii ijenge historia halisi.",
+    changeEmpty: "Hakuna hisa iliyo na kufungwa kwa taarifa mbili bado — ingiza taarifa ya pili kuanza chati.",
+    changeUp: "ilipanda",
+    changeDown: "ilishuka",
     pricesBtn: "Bei",
     historyBtn: "Historia ya kupakia",
     importReportBtn: "+ Ingiza taarifa",
@@ -1501,6 +1560,7 @@ function buildDashboard(){
   renderTicker();
   renderMeta();
   renderGrid();
+  renderPriceChange();
 }
 
 function updateImportUI(){
@@ -1786,6 +1846,43 @@ function renderPrices(){
     </tr>`;
   }).join('');
   document.getElementById('pricesDate').textContent = t("pricesDate", {d: latestReportDate});
+}
+
+function renderPriceChange(){
+  const bars = document.getElementById('changeBars');
+  if (!bars) return;
+  const rows = counters.map(c => {
+    const h = mergedHistory(c.symbol, getImported()).filter(r => r.close != null);
+    if (h.length < 2) return null;
+    return {c, prev: h[h.length - 2], latest: h[h.length - 1]};
+  }).filter(Boolean);
+  if (rows.length === 0){
+    bars.innerHTML = '<div class="change-empty">' + escapeHtml(t("changeEmpty")) + '</div>';
+    return;
+  }
+  const maxAbs = Math.max(1, ...rows.map(r =>
+    Math.abs((r.latest.close - r.prev.close) / r.prev.close) * 100
+  ));
+  const scale = 50 / maxAbs; // half the track per 100% move
+  bars.innerHTML = rows.map(r => {
+    const acc = BRAND_COLORS[r.c.symbol] ? `--acc:${BRAND_COLORS[r.c.symbol]};` : "";
+    const pct = ((r.latest.close - r.prev.close) / r.prev.close) * 100;
+    const dir = Math.abs(pct) < 0.0001 ? "flat" : (pct > 0 ? "up" : "down");
+    const prev = fmtTZS(r.prev.close);
+    const lat = fmtTZS(r.latest.close);
+    const w = Math.min(Math.abs(pct) * scale, 50);
+    const fill = dir === "flat"
+      ? '<div class="change-fill flat"></div>'
+      : '<div class="change-fill ' + dir + '" style="width:' + w + '%"></div>';
+    const label = (pct > 0 ? "+" : "") + pct.toFixed(2) + "%";
+    const dateTxt = r.prev.date + (r.prev.date !== r.latest.date ? " → " + r.latest.date : "");
+    return '<div class="change-row" style="' + acc + '">' +
+      '<div class="change-sym"><div class="logo mono">' + escapeHtml(r.c.symbol.slice(0, 2)) + '</div>' + escapeHtml(r.c.symbol) + '</div>' +
+      '<div class="change-price"><b>' + prev + '</b> → <b>' + lat + '</b><br><small>' + dateTxt + '</small></div>' +
+      '<div class="change-track"><div class="change-mid"></div>' + fill + '</div>' +
+      '<div class="change-pct ' + dir + '">' + label + (dir !== "flat" ? " <small>" + escapeHtml(t(dir === "up" ? "changeUp" : "changeDown")) + "</small>" : "") + '</div>' +
+    '</div>';
+  }).join('');
 }
 
 // Highest closes found in public records (DSE reports, Simply Wall St,
